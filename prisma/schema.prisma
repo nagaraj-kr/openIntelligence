@@ -1,0 +1,152 @@
+// Open Intelligence Hub — Prisma Schema
+// Madurai AI Community / PiBi Foundation
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// ─────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────
+
+enum Role {
+  CONTRIBUTOR
+  ADMIN
+}
+
+enum ResourceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FEATURED
+}
+
+// ─────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────
+
+model User {
+  id         String     @id @default(uuid())
+  username   String     @unique       // GitHub username
+  full_name  String
+  avatar_url String
+  bio        String?
+  role       Role       @default(CONTRIBUTOR)
+  created_at DateTime   @default(now())
+  resources  Resource[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  slug        String     @unique
+  icon        String                   // emoji
+  description String
+  resources   Resource[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id        String        @id @default(uuid())
+  name      String        @unique
+  resources ResourceTag[]
+
+  @@map("tags")
+}
+
+model Resource {
+  id                  String          @id @default(uuid())
+  title               String
+  slug                String          @unique
+  description         String
+  github_url          String
+  category_id         String
+  contributor_id      String
+  status              ResourceStatus  @default(PENDING)
+  github_stars        Int             @default(0)
+  github_language     String?
+  github_last_updated DateTime?
+  use_case            String
+  created_at          DateTime        @default(now())
+
+  category    Category      @relation(fields: [category_id], references: [id])
+  contributor User          @relation(fields: [contributor_id], references: [id])
+  tags        ResourceTag[]
+
+  @@map("resources")
+}
+
+model ResourceTag {
+  resource_id String
+  tag_id      String
+
+  resource Resource @relation(fields: [resource_id], references: [id], onDelete: Cascade)
+  tag      Tag      @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@id([resource_id, tag_id])
+  @@map("resource_tags")
+}
+
+enum MeetingStatus {
+  UPCOMING
+  COMPLETED
+}
+
+model Meeting {
+  id                String        @id @default(uuid())
+  title             String
+  description       String
+  date              DateTime
+  venue             String
+  registration_link String        @default("")
+  status            MeetingStatus @default(UPCOMING)
+  cover_image       String?       // Supabase Storage URL for the event banner
+
+  // Outcome fields — filled after the meeting ends
+  outcome_title     String?
+  outcome_summary   String?
+  attendees_count   Int?
+  photos            String[]      @default([])   // Supabase Storage URLs
+  tags              String[]      @default([])   // e.g. ["RAG","MCP","Agents"]
+
+  created_at        DateTime @default(now())
+
+  @@map("meetings")
+}
+
+// ─────────────────────────────────────────
+// Admin — separate from GitHub users
+// ─────────────────────────────────────────
+
+model Admin {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  password_hash String             // bcrypt hashed — never store plain text
+  name          String
+  created_at    DateTime @default(now())
+
+  @@map("admins")
+}
+
+// ─────────────────────────────────────────
+// Event Registrations
+// ─────────────────────────────────────────
+
+model EventRegistration {
+  id         String   @id @default(uuid())
+  meeting_id String
+  name       String
+  email      String
+  phone      String
+  interested Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@map("event_registrations")
+}

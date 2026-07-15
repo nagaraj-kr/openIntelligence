@@ -1,0 +1,126 @@
+'use client';
+
+import Link from 'next/link';
+
+const footerLinks = {
+  Explore: [
+    { href: '/resources', label: 'Browse Resources' },
+    { href: '/meetings',  label: 'Community Meetings' },
+    { href: '/submit',    label: 'Submit a Resource' },
+  ],
+  Categories: [
+    { href: '/resources?category=mcp-server',     label: 'MCP Servers' },
+    { href: '/resources?category=dataset',         label: 'Datasets' },
+    { href: '/resources?category=rag-template',    label: 'RAG Templates' },
+    { href: '/resources?category=prompt-library',  label: 'Prompt Libraries' },
+  ],
+  Community: [
+    { href: 'https://github.com', label: 'GitHub', external: true },
+    { href: '/profile',           label: 'My Profile' },
+    { href: '/admin',             label: 'Admin Panel' },
+  ],
+};
+
+export default function Footer() {
+  return (
+    <footer style={{
+      borderTop: '1px solid var(--border)',
+      background: 'var(--bg-secondary)',
+      marginTop: 'auto',
+    }}>
+      <div className="container" style={{ padding: '3rem 1.5rem 2rem' }}>
+
+        {/* Top section */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: '2rem',
+          marginBottom: '2.5rem',
+        }}>
+
+          {/* Brand */}
+          <div style={{ gridColumn: 'span 1' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '0.75rem' }}>
+              <div style={{
+                width: 34, height: 34,
+                background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
+                borderRadius: '9px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '0.9rem', fontWeight: 800, color: 'white',
+              }}>
+                OI
+              </div>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>
+                Open<span style={{ color: '#6366f1' }}>Intelligence</span>
+              </span>
+            </div>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.6, maxWidth: '240px' }}>
+              Building AI commons — open and free. A platform by{' '}
+              <span style={{ color: 'var(--accent-primary)' }}>PiBi Foundation</span> for the Madurai AI Community.
+            </p>
+          </div>
+
+          {/* Links */}
+          {Object.entries(footerLinks).map(([group, links]) => (
+            <div key={group}>
+              <h4 style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.75rem', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                {group}
+              </h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {links.map(({ href, label, external }) => (
+                  <li key={label}>
+                    <Link
+                      href={href}
+                      target={external ? '_blank' : undefined}
+                      rel={external ? 'noopener noreferrer' : undefined}
+                      style={{
+                        color: 'var(--text-muted)',
+                        textDecoration: 'none',
+                        fontSize: '0.85rem',
+                        transition: 'color 0.2s',
+                      }}
+                      onMouseEnter={e => e.target.style.color = '#6366f1'}
+                      onMouseLeave={e => e.target.style.color = 'var(--text-muted)'}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom bar */}
+        <div style={{
+          borderTop: '1px solid var(--border)',
+          paddingTop: '1.5rem',
+          display: 'flex',
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '0.75rem',
+        }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+            © {new Date().getFullYear()} PiBi Foundation · Open Intelligence Hub
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <span style={{
+              fontSize: '0.75rem',
+              padding: '0.2rem 0.6rem',
+              borderRadius: '20px',
+              background: 'rgba(16,185,129,0.1)',
+              color: '#34d399',
+              border: '1px solid rgba(16,185,129,0.2)',
+            }}>
+              Open Source
+            </span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+              Built with ❤️ for Madurai AI Community
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
