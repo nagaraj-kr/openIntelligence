@@ -115,6 +115,7 @@ model Meeting {
   attendees_count   Int?
   photos            String[]      @default([])   // Supabase Storage URLs
   tags              String[]      @default([])   // e.g. ["RAG","MCP","Agents"]
+  speakers          String[]      @default([])   // List of speaker names
 
   created_at        DateTime @default(now())
 

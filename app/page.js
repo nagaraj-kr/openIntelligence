@@ -8,13 +8,13 @@ import HeroEventCard from '@/components/HeroEventCard';
 
 // 7 categories from the project document
 const CATEGORIES = [
-  { icon: '📚', name: 'Public Datasets',             slug: 'dataset',         desc: 'High-quality datasets for AI research & model training' },
-  { icon: '💻', name: 'Open GitHub Projects',         slug: 'open-repository', desc: 'Open-source repos accelerating AI development' },
-  { icon: '✍️', name: 'Prompt Libraries',             slug: 'prompt-library',  desc: 'Reusable prompts for consistent AI results' },
-  { icon: '🔌', name: 'MCP Servers',                  slug: 'mcp-server',      desc: 'Connectors linking AI agents to tools & APIs' },
-  { icon: '🧠', name: 'RAG Templates',                slug: 'rag-template',    desc: 'Retrieval-Augmented Generation pipelines & examples' },
-  { icon: '⚙️', name: 'AI Workflows & Automation',   slug: 'ai-workflow',     desc: 'Reusable automation playbooks for real-world tasks' },
-  { icon: '📖', name: 'Documentation & Tutorials',   slug: 'documentation',   desc: 'Guides & tutorials that make AI accessible' },
+  { icon: '📚', name: 'Public Datasets', slug: 'dataset', desc: 'High-quality datasets for AI research & model training' },
+  { icon: '💻', name: 'Open GitHub Projects', slug: 'open-repository', desc: 'Open-source repos accelerating AI development' },
+  { icon: '✍️', name: 'Prompt Libraries', slug: 'prompt-library', desc: 'Reusable prompts for consistent AI results' },
+  { icon: '🔌', name: 'MCP Servers', slug: 'mcp-server', desc: 'Connectors linking AI agents to tools & APIs' },
+  { icon: '🧠', name: 'RAG Templates', slug: 'rag-template', desc: 'Retrieval-Augmented Generation pipelines & examples' },
+  { icon: '⚙️', name: 'AI Workflows & Automation', slug: 'ai-workflow', desc: 'Reusable automation playbooks for real-world tasks' },
+  { icon: '📖', name: 'Documentation & Tutorials', slug: 'documentation', desc: 'Guides & tutorials that make AI accessible' },
 ];
 
 
@@ -37,9 +37,9 @@ async function getFeaturedResources() {
 async function getUpcomingMeetings() {
   try {
     return await prisma.meeting.findMany({
-      where:   { date: { gte: new Date() } },
+      where: { date: { gte: new Date() } },
       orderBy: { date: 'asc' },
-      take:    2,
+      take: 2,
     });
   } catch { return []; }
 }
@@ -71,8 +71,8 @@ async function getTopContributors() {
         const u = userMap[g.contributor_id];
         if (!u) return null;
         return {
-          login:       u.github_username || u.username || 'Anonymous',
-          avatar_url:  u.avatar_url || `https://ui-avatars.com/api/?name=${u.username}&background=6366f1&color=fff`,
+          login: u.github_username || u.username || 'Anonymous',
+          avatar_url: u.avatar_url || `https://ui-avatars.com/api/?name=${u.username}&background=6366f1&color=fff`,
           profile_url: u.github_username ? `https://github.com/${u.github_username}` : '#',
           resource_count: g._count.id,
         };
@@ -170,20 +170,36 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── FEATURED RESOURCES ─────────────────────────────────── */}
-      <section className="section" style={{ paddingTop: '2rem', background: 'rgba(13,17,23,0.5)' }}>
+      {/* ── HERO TEXT & FEATURED RESOURCES ─────────────────────── */}
+      <section className="section" style={{ paddingTop: '5rem', paddingBottom: '3rem', background: '#ffffff' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', margin: '0 0 0.3rem' }}>
-                Community Resources
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: 0 }}>
-                Open-source AI resources submitted by the community
-              </p>
+          {/* Added Hero Text */}
+          <div style={{ maxWidth: '800px', marginBottom: '4rem', textAlign: 'left' }}>
+            <div style={{ color: '#d97706', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
+              MADURAI AI COMMUNITY &middot; PIBI FOUNDATION
             </div>
-            <Link href="/resources" className="btn-outline" style={{ fontSize: '0.85rem' }}>
-              View All →
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 700, color: '#0f172a', lineHeight: 1.2, marginBottom: '1.25rem' }}>
+              The community-curated home for<br />open-source AI.
+            </h2>
+            <p style={{ fontSize: '1rem', color: '#475569', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '750px' }}>
+              Datasets, GitHub projects, prompt libraries, MCP servers, RAG templates and workflows &mdash; all crowdsourced, reviewed and organised by the Madurai AI community.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <Link href="/resources" style={{ background: '#0f172a', color: '#ffffff', padding: '0.75rem 1.25rem', borderRadius: '8px', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
+                Browse resources &rarr;
+              </Link>
+              <Link href="/submit" style={{ background: '#ffffff', color: '#0f172a', padding: '0.75rem 1.25rem', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
+                Submit a resource
+              </Link>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#0f172a', margin: 0 }}>
+              Featured resources
+            </h3>
+            <Link href="/resources" style={{ fontSize: '0.85rem', color: '#475569', textDecoration: 'none' }}>
+              View all &rarr;
             </Link>
           </div>
 
@@ -194,17 +210,17 @@ export default async function HomePage() {
               gap: '1rem',
             }}>
               {featuredResources.map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} />
+                <ResourceCard key={resource.id} resource={resource} variant="minimal" />
               ))}
             </div>
           ) : (
             /* Empty state */
             <div className="glass-card" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌱</div>
-              <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, marginBottom: '0.5rem' }}>
+              <h3 style={{ color: '#0f172a', fontWeight: 700, marginBottom: '0.5rem' }}>
                 Be the First Contributor!
               </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
                 The Madurai AI Community is just getting started. Submit the first open-source AI resource.
               </p>
               <Link href="/submit" className="btn-primary">
@@ -254,7 +270,7 @@ export default async function HomePage() {
                       minWidth: 32, height: 32, borderRadius: '50%',
                       background: idx === 0 ? 'linear-gradient(135deg,#6366f1,#818cf8)'
                         : idx === 1 ? 'rgba(6,182,212,0.15)'
-                        : 'rgba(255,255,255,0.05)',
+                          : 'rgba(255,255,255,0.05)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '0.7rem', fontWeight: 700,
                       color: idx === 0 ? '#fff' : idx === 1 ? '#06b6d4' : 'var(--text-muted)',

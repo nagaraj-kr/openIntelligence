@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import EventRegistrationModal from './EventRegistrationModal';
 
 export default function HeroEventCard({ meeting, isPast = false }) {
-  const { title, description, date, venue, registration_link, photos, cover_image } = meeting;
+  const { title, description, date, venue, registration_link, photos, cover_image, outcome_title, outcome_summary, attendees_count } = meeting;
   const coverPhoto = cover_image || null;
 
   const meetingDate = new Date(date);
@@ -21,6 +21,12 @@ export default function HeroEventCard({ meeting, isPast = false }) {
       finalDescription = finalDescription.replace(timingMatch[0], '');
     }
   }
+
+  const mMonth = meetingDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+  const mDay = meetingDate.getDate();
+  const shortDateStr = `${meetingDate.toLocaleDateString('en-US', { month: 'short' })} ${mDay}, ${meetingDate.getFullYear()}`;
+  const fullDateStr = meetingDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const tags = Array.isArray(meeting.tags) ? meeting.tags : [];
 
   // Countdown Logic
   const calculateTimeLeft = () => {
@@ -60,6 +66,87 @@ export default function HeroEventCard({ meeting, isPast = false }) {
     </div>
   );
 
+  if (isPast) {
+    return (
+      <>
+        {/* Past Session Card UI */}
+        <div style={{ display: 'flex', flexDirection: 'row', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', flexWrap: 'wrap' }}>
+          {/* Image Side */}
+          <div style={{ width: '100%', maxWidth: '180px', flex: '0 0 auto', background: '#ffffff', display: 'flex', alignItems: 'flex-start' }}>
+            <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+              {coverPhoto ? (
+                   <img src={coverPhoto} alt={title} style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '16px 0 0 16px' }} />
+              ) : (
+                 <div style={{ width: '100%', minHeight: '160px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 0 0 16px' }}>
+                   <span style={{ color: '#94a3b8' }}>No image</span>
+                 </div>
+              )}
+              
+              {/* Date Badge */}
+              <div style={{ position: 'absolute', top: '8px', left: '8px', background: '#ffffff', borderRadius: '6px', padding: '4px 6px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#64748b', lineHeight: 1, marginBottom: '2px' }}>{mMonth}</div>
+                <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{mDay}</div>
+              </div>
+
+              {/* Attendees Badge */}
+              {attendees_count && (
+                <div style={{ position: 'absolute', bottom: '8px', left: '8px', background: 'rgba(30,41,59,0.85)', color: '#ffffff', padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', backdropFilter: 'blur(4px)' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  {attendees_count}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Content Side */}
+          <div style={{ padding: '1.5rem', flex: '999 1 320px', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+              <span style={{ padding: '4px 12px', background: '#f1f5f9', color: '#475569', borderRadius: '16px', fontSize: '0.75rem', fontWeight: 600 }}>Completed</span>
+              {(outcome_title || outcome_summary) && (
+                <span style={{ padding: '4px 12px', background: '#dcfce7', color: '#166534', borderRadius: '16px', fontSize: '0.75rem', fontWeight: 600 }}>Outcome published</span>
+              )}
+            </div>
+
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '12px', fontFamily: 'var(--font-display)', lineHeight: 1.3 }}>{title}</h3>
+            
+            <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              {outcome_summary || finalDescription}
+            </p>
+
+            {tags.length > 0 && (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                {tags.map(tag => (
+                  <span key={tag} style={{ padding: '4px 10px', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', borderRadius: '16px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', gap: '16px', color: '#94a3b8', fontSize: '0.85rem', flexWrap: 'wrap' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  {shortDateStr}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  {venue}
+                </span>
+              </div>
+              <Link href={`/meetings/${meeting.id}`} style={{ color: '#ea580c', fontWeight: 600, fontSize: '0.95rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                View recap →
+              </Link>
+            </div>
+          </div>
+        </div>
+
+      </>
+    );
+  }
+
+  // Original Upcoming Session UI
   return (
     <div style={{ 
       display: 'flex', 
@@ -110,7 +197,7 @@ export default function HeroEventCard({ meeting, isPast = false }) {
         </div>
 
         {/* Countdown */}
-        {!isPast && isClient && !timeLeft.expired && (
+        {isClient && !timeLeft.expired && (
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
             {timeLeft.days !== undefined && (
               <>
@@ -123,105 +210,19 @@ export default function HeroEventCard({ meeting, isPast = false }) {
           </div>
         )}
 
-        {isPast ? (
-          <div style={{ marginTop: '1rem' }}>
-            <button onClick={() => setShowOutcome(true)} style={{ display: 'inline-flex', padding: '0.8rem 1.5rem', background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.4)', color: '#34d399', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', alignItems: 'center', gap: '6px' }}>
-              View Outcomes
-            </button>
-            {showOutcome && (() => {
-              const modalBgImage = meeting.photos && meeting.photos.length > 0 ? meeting.photos[0] : null;
-
-              return (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', background: 'rgba(5,8,16,0.85)', backdropFilter: 'blur(12px)' }} onClick={() => setShowOutcome(false)}>
-                  <div
-                    className="glass-card"
-                    style={{
-                      padding: '2rem',
-                      borderRadius: '24px',
-                      border: '1px solid rgba(0,0,0,0.1)',
-                      width: '100%',
-                      maxWidth: '650px',
-                      background: '#ffffff',
-                      boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.3)'
-                    }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <div className="custom-scrollbar" style={{ maxHeight: 'calc(80vh - 4rem)', overflowY: 'auto' }}>
-                      
-                      {/* First Card - Image Banner */}
-                      <div style={{ 
-                        position: 'relative',
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        marginBottom: '1rem',
-                        background: modalBgImage 
-                          ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${modalBgImage})` 
-                          : 'rgba(0,0,0,0.05)',
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        minHeight: '200px',
-                        border: '1px solid rgba(0,0,0,0.1)'
-                      }}>
-                        <h3 style={{ 
-                          color: '#ffffff', 
-                          fontWeight: 300, 
-                          fontSize: '1rem', 
-                          margin: 0, 
-                          textTransform: 'uppercase', 
-                          letterSpacing: '2px',
-                          position: 'absolute',
-                          top: '16px',
-                          left: '16px'
-                        }}>Outcome Details</h3>
-                      </div>
-
-                      {/* Second Card - Content */}
-                      <div style={{ 
-                        background: 'rgba(0, 0, 0, 0.02)', 
-                        padding: '1.5rem', 
-                        borderRadius: '16px', 
-                        border: '1px solid rgba(0,0,0,0.05)'
-                      }}>
-                        {meeting.outcome_title && <h4 style={{ color: '#059669', fontWeight: 600, fontSize: '1.1rem', margin: '0 0 12px 0', textTransform: 'uppercase' }}>{meeting.outcome_title}</h4>}
-                        <div style={{
-                          color: '#334155',
-                          fontSize: '0.95rem',
-                          lineHeight: '1.8',
-                          whiteSpace: 'pre-wrap',
-                          background: 'rgba(0, 0, 0, 0.04)',
-                          padding: '1.25rem',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(0,0,0,0.05)',
-                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)'
-                        }}>
-                          {meeting.outcome_summary || <span style={{ fontStyle: 'italic', color: '#64748b' }}>Outcome details will be updated soon.</span>}
-                        </div>
-                      </div>
-
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
-                      <button onClick={() => setShowOutcome(false)} style={{ padding: '0.6rem 1.25rem', background: '#2563eb', border: 'none', color: '#fff', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Close</button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
+        {registration_link ? (
+          <Link href={registration_link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', padding: '0.8rem 1.5rem', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s', alignItems: 'center', gap: '6px' }}>
+            Register (External) →
+          </Link>
         ) : (
-          registration_link ? (
-            <Link href={registration_link} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', padding: '0.8rem 1.5rem', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#818cf8', borderRadius: '8px', fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s', alignItems: 'center', gap: '6px' }}>
-              Register (External) →
-            </Link>
-          ) : (
-            <>
-              <button onClick={() => setShowRegistration(true)} style={{ display: 'inline-flex', padding: '0.8rem 1.5rem', background: '#4f46e5', border: '1px solid #6366f1', color: '#fff', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', alignItems: 'center', gap: '6px', boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)' }}>
-                Register Free →
-              </button>
-              {showRegistration && (
-                <EventRegistrationModal meeting={meeting} onClose={() => setShowRegistration(false)} />
-              )}
-            </>
-          )
+          <>
+            <button onClick={() => setShowRegistration(true)} style={{ display: 'inline-flex', padding: '0.8rem 1.5rem', background: '#4f46e5', border: '1px solid #6366f1', color: '#fff', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', alignItems: 'center', gap: '6px', boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)' }}>
+              Register Free →
+            </button>
+            {showRegistration && (
+              <EventRegistrationModal meeting={meeting} onClose={() => setShowRegistration(false)} />
+            )}
+          </>
         )}
       </div>
 
@@ -242,9 +243,7 @@ export default function HeroEventCard({ meeting, isPast = false }) {
       }}>
         {coverPhoto ? (
           <>
-            {/* Blurred backdrop for premium look regardless of aspect ratio */}
             <img src={coverPhoto} alt="" aria-hidden="true" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0, filter: 'blur(20px)', opacity: 0.4, transform: 'scale(1.1)' }} />
-            {/* Actual contained image */}
             <img src={coverPhoto} alt={title} style={{ width: '100%', height: '100%', objectFit: 'contain', position: 'absolute', inset: 0, padding: '1rem', zIndex: 1 }} />
           </>
         ) : (

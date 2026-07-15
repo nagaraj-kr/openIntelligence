@@ -667,7 +667,8 @@ export default function AdminPage() {
   // Create/Edit event form
   const [showEventForm, setShowEventForm] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
-  const [eventForm, setEventForm] = useState({ title: '', description: '', date: '', time: '', end_time: '', venue: '', registration_link: '', photos: '' });
+  const [eventForm, setEventForm] = useState({ title: '', description: '', date: '', time: '', end_time: '', venue: '', registration_link: '', photos: '', speakers: [] });
+  const [speakerInput, setSpeakerInput] = useState('');
   const [savingEvent, setSavingEvent] = useState(false);
   const [eventError, setEventError] = useState('');
 
@@ -747,7 +748,8 @@ export default function AdminPage() {
 
   // ── Event Handlers ──────────────────────────────────────────────────────────
   const resetEventForm = () => {
-    setEventForm({ title: '', description: '', date: '', time: '', end_time: '', venue: '', registration_link: '', cover_image: '' });
+    setEventForm({ title: '', description: '', date: '', time: '', end_time: '', venue: '', registration_link: '', cover_image: '', speakers: [] });
+    setSpeakerInput('');
     setEditingEvent(null);
     setShowEventForm(false);
   };
@@ -810,7 +812,8 @@ export default function AdminPage() {
       end_time: '', // Parse logic could be complex, resetting for edit
       venue: meeting.venue,
       registration_link: meeting.registration_link,
-      cover_image: meeting.cover_image || ''
+      cover_image: meeting.cover_image || '',
+      speakers: meeting.speakers || []
     });
     setEditingEvent(meeting);
     setShowEventForm(true);
@@ -837,9 +840,17 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        setEventError(`Server returned an invalid response (${res.status}). Ensure Prisma is synced.`);
+        setSavingEvent(false);
+        return;
+      }
+      
       if (!res.ok) {
-        setEventError(data.error || `Request failed (${res.status})`);
+        setEventError(data?.error || `Request failed (${res.status})`);
         setSavingEvent(false);
         return;
       }
@@ -877,7 +888,7 @@ export default function AdminPage() {
     setSavingOutcome(true);
     const tagsArr = outcomeForm.tags.split(',').map(t => t.trim()).filter(Boolean);
     const photosArr = outcomeForm.photos.split(',').map(t => t.trim()).filter(Boolean);
-    await fetch(`/api/admin/meetings/${outcomeEvent.id}`, {
+    const res = await fetch(`/api/admin/meetings/${outcomeEvent.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -889,6 +900,10 @@ export default function AdminPage() {
         status: 'COMPLETED',
       }),
     });
+
+    if (!res.ok) {
+      alert(`Request failed (${res.status})`);
+    }
     await loadData();
     setShowOutcomeForm(false);
     setOutcomeEvent(null);
@@ -1182,6 +1197,22 @@ export default function AdminPage() {
                       </Field>
                       <Field label="Registration / Join Link (optional)">
                         <input type="url" placeholder="https://..." value={eventForm.registration_link} onChange={(e) => setEventForm({ ...eventForm, registration_link: e.target.value })} className="input-field" />
+                      </Field>
+                      <Field label="Speakers (Optional)">
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <input type="text" placeholder="e.g. Nagaraj" value={speakerInput} onChange={(e) => setSpeakerInput(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (speakerInput.trim()) { setEventForm({ ...eventForm, speakers: [...(eventForm.speakers || []), speakerInput.trim()] }); setSpeakerInput(''); } } }} className="input-field" style={{ flex: 1 }} />
+                          <button type="button" onClick={() => { if (speakerInput.trim()) { setEventForm({ ...eventForm, speakers: [...(eventForm.speakers || []), speakerInput.trim()] }); setSpeakerInput(''); } }} style={{ padding: '0 1rem', background: '#6366f1', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}>Add</button>
+                        </div>
+                        {eventForm.speakers && eventForm.speakers.length > 0 && (
+                          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+                            {eventForm.speakers.map((s, idx) => (
+                              <span key={idx} style={{ padding: '4px 10px', background: 'rgba(99,102,241,0.1)', color: '#818cf8', borderRadius: '16px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(99,102,241,0.2)' }}>
+                                {s}
+                                <button type="button" onClick={() => setEventForm({ ...eventForm, speakers: eventForm.speakers.filter((_, i) => i !== idx) })} style={{ background: 'transparent', border: 'none', color: '#818cf8', cursor: 'pointer', padding: 0, fontSize: '1rem', lineHeight: 1 }}>&times;</button>
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </Field>
                       <Field label="Event Banner/Photo">
                         <input type="file" accept="image/*" onChange={handleEventImageUpload} className="input-field" style={{ padding: '0.5rem', background: 'var(--bg-secondary)' }} />

@@ -1,16 +1,18 @@
+"use client";
+
 import Link from 'next/link';
 
 const categoryColors = {
-  'mcp-server':     { from: '#6366f1', to: '#8b5cf6' },
-  'dataset':        { from: '#06b6d4', to: '#0891b2' },
-  'rag-template':   { from: '#10b981', to: '#059669' },
+  'mcp-server': { from: '#6366f1', to: '#8b5cf6' },
+  'dataset': { from: '#06b6d4', to: '#0891b2' },
+  'rag-template': { from: '#10b981', to: '#059669' },
   'prompt-library': { from: '#f59e0b', to: '#d97706' },
-  'ai-workflow':    { from: '#ec4899', to: '#db2777' },
-  'open-repository':{ from: '#3b82f6', to: '#2563eb' },
-  'documentation':  { from: '#8b5cf6', to: '#7c3aed' },
+  'ai-workflow': { from: '#ec4899', to: '#db2777' },
+  'open-repository': { from: '#3b82f6', to: '#2563eb' },
+  'documentation': { from: '#8b5cf6', to: '#7c3aed' },
 };
 
-export default function ResourceCard({ resource }) {
+export default function ResourceCard({ resource, variant = 'light' }) {
   const {
     title,
     slug,
@@ -37,6 +39,61 @@ export default function ResourceCard({ resource }) {
     if (days < 365) return `${Math.floor(days / 30)}mo ago`;
     return `${Math.floor(days / 365)}y ago`;
   };
+
+  if (variant === 'minimal') {
+    return (
+      <Link href={`/resources/${slug}`} style={{ textDecoration: 'none', display: 'block' }}>
+        <article
+          style={{
+            padding: '1.25rem',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            borderRadius: '8px',
+            background: '#ffffff',
+            border: '1px solid #e5e7eb',
+            transition: 'border-color 0.2s ease-in-out',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#93c5fd'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
+        >
+          {/* Title */}
+          <h3 style={{ margin: 0, fontSize: '1rem', fontFamily: 'monospace' }}>
+            <span style={{ color: '#6b7280', fontWeight: 500 }}>
+              {contributor?.username || 'anonymous'}/
+            </span>
+            <span style={{ color: '#111827', fontWeight: 600 }}>
+              {title}
+            </span>
+          </h3>
+
+          {/* Description */}
+          <p style={{ margin: 0, fontSize: '0.9rem', color: '#4b5563', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {description || use_case}
+          </p>
+
+          {/* Tags */}
+          {tags.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: 'auto', paddingTop: '0.25rem' }}>
+              {tags.slice(0, 3).map(({ tag }) => (
+                <span key={tag.id} style={{
+                  padding: '0.2rem 0.6rem',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  background: '#f3f4f6',
+                  color: '#4b5563',
+                }}>
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </article>
+      </Link>
+    );
+  }
 
   return (
     <Link href={`/resources/${slug}`} style={{ textDecoration: 'none', display: 'block' }}>
@@ -85,7 +142,7 @@ export default function ResourceCard({ resource }) {
           {github_stars > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: '#fbbf24', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
               <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               {github_stars.toLocaleString()}
             </div>

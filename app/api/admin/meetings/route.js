@@ -17,7 +17,7 @@ export async function POST(request) {
   try {
     if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-    const { title, description, date, venue, registration_link, cover_image } = await request.json();
+    const { title, description, date, venue, registration_link, cover_image, speakers } = await request.json();
 
     if (!title || !description || !date || !venue) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -32,6 +32,7 @@ export async function POST(request) {
         registration_link: registration_link || '',
         status:            'UPCOMING',
         tags:              [],
+        speakers:          speakers || [],
         cover_image:       cover_image || null,
       },
     });

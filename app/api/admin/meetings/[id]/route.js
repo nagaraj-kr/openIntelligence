@@ -22,7 +22,7 @@ export async function PUT(request, { params }) {
   const {
     title, description, date, venue, registration_link, cover_image,
     // outcome fields
-    outcome_title, outcome_summary, attendees_count, photos, tags,
+    outcome_title, outcome_summary, attendees_count, photos, tags, speakers,
     status,
   } = body;
 
@@ -41,21 +41,32 @@ export async function PUT(request, { params }) {
   if (attendees_count !== undefined)   data.attendees_count   = attendees_count ? Number(attendees_count) : null;
   if (photos !== undefined)            data.photos            = photos;
   if (tags !== undefined)              data.tags              = tags;
+  if (speakers !== undefined)          data.speakers          = speakers;
 
   // If outcome fields are being saved and status not explicit, mark COMPLETED
   if ((outcome_summary || outcome_title) && status === undefined) {
     data.status = 'COMPLETED';
   }
 
-  const meeting = await prisma.meeting.update({ where: { id }, data });
-  return NextResponse.json({ success: true, meeting });
+  try {
+    const meeting = await prisma.meeting.update({ where: { id }, data });
+    return NextResponse.json({ success: true, meeting });
+  } catch (err) {
+    console.error('[PUT /api/admin/meetings/[id]] Error:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }
 
 // DELETE /api/admin/meetings/[id]
 export async function DELETE(request, { params }) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { id } = await params;
-  await prisma.meeting.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  try {
+    const { id } = await params;
+    await prisma.meeting.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[DELETE /api/admin/meetings/[id]] Error:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }
