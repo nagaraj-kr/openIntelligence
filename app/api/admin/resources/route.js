@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 const STATUS_MAP = {
   approve: 'APPROVED',
@@ -28,10 +28,16 @@ export async function PATCH(request) {
 
   if (!status) return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
 
-  const resource = await prisma.resource.update({
-    where: { id: resourceId },
-    data:  { status },
-  });
+  const { data: resource, error } = await supabaseAdmin
+    .from('resources')
+    .update({ status })
+    .eq('id', resourceId)
+    .select()
+    .single();
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true, resource });
 }

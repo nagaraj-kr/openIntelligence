@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 async function isAdmin() {
   try {
@@ -23,19 +23,19 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const meeting = await prisma.meeting.create({
-      data: {
-        title,
-        description,
-        date:              new Date(date),
-        venue,
-        registration_link: registration_link || '',
-        status:            'UPCOMING',
-        tags:              [],
-        speakers:          speakers || [],
-        cover_image:       cover_image || null,
-      },
-    });
+    const { data: meeting, error } = await supabaseAdmin.from('meetings').insert({
+      title,
+      description,
+      date:              new Date(date).toISOString(),
+      venue,
+      registration_link: registration_link || '',
+      status:            'UPCOMING',
+      tags:              [],
+      speakers:          speakers || [],
+      cover_image:       cover_image || null,
+    }).select().single();
+
+    if (error) throw error;
 
     return NextResponse.json({ success: true, meeting }, { status: 201 });
   } catch (err) {
@@ -48,7 +48,8 @@ export async function POST(request) {
 export async function GET() {
   try {
     if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    const meetings = await prisma.meeting.findMany({ orderBy: { date: 'desc' } });
+    const { data: meetings, error } = await supabaseAdmin.from('meetings').select('*').order('date', { ascending: false });
+    if (error) throw error;
     return NextResponse.json({ meetings });
   } catch (err) {
     console.error('[GET /api/admin/meetings] Error:', err.message);

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
@@ -12,7 +12,7 @@ export async function POST(request) {
     }
 
     // 1. Look up admin by email in the `admins` table (separate from GitHub users)
-    const admin = await prisma.admin.findUnique({ where: { email } });
+    const { data: admin } = await supabaseAdmin.from('admins').select('*').eq('email', email).single();
 
     if (!admin) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });

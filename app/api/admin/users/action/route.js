@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // Check admin via cookie
 async function isAdmin() {
@@ -23,15 +23,9 @@ export async function PATCH(req) {
     }
 
     if (action === 'ban') {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { bio: '__BANNED__' } // We use bio field as a temporary workaround to avoid Prisma schema migrations
-      });
+      await supabaseAdmin.from('users').update({ bio: '__BANNED__' }).eq('id', userId);
     } else if (action === 'unban') {
-      await prisma.user.update({
-        where: { id: userId },
-        data: { bio: null }
-      });
+      await supabaseAdmin.from('users').update({ bio: null }).eq('id', userId);
     }
 
     return NextResponse.json({ success: true });

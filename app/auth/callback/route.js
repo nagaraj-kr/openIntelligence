@@ -1,7 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET(request) {
   const { searchParams, origin } = new URL(request.url);
@@ -42,25 +42,30 @@ export async function GET(request) {
 
       let dbUser;
       try {
-        dbUser = await prisma.user.upsert({
-          where:  { id: supabaseUser.id },
-          update: {
-            username:   githubUsername || supabaseUser.email || 'user',
-            full_name:  supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || '',
-            avatar_url: supabaseUser.user_metadata?.avatar_url || '',
-            // Upgrade to admin if username matches — never downgrade
-            ...(isAdmin ? { role: 'ADMIN' } : {}),
-          },
-          create: {
+        const updateData = {
+          username:   githubUsername || supabaseUser.email || 'user',
+          full_name:  supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || '',
+          avatar_url: supabaseUser.user_metadata?.avatar_url || '',
+          ...(isAdmin ? { role: 'ADMIN' } : {}),
+        };
+
+        const { data: existingUser } = await supabaseAdmin.from('users').select('id').eq('id', supabaseUser.id).single();
+
+        if (existingUser) {
+          const { data: updated } = await supabaseAdmin.from('users').update(updateData).eq('id', supabaseUser.id).select().single();
+          dbUser = updated;
+        } else {
+          const { data: inserted } = await supabaseAdmin.from('users').insert({
             id:         supabaseUser.id,
             username:   githubUsername || supabaseUser.email || 'user',
             full_name:  supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || '',
             avatar_url: supabaseUser.user_metadata?.avatar_url || '',
             role:       isAdmin ? 'ADMIN' : 'CONTRIBUTOR',
-          },
-        });
-      } catch (dbError) {
-        console.error('Error saving user profile:', dbError);
+          }).select().single();
+          dbUser = inserted;
+        }
+      } catch (err) {
+        console.error('Error saving user profile:', err);
       }
 
       // Deny access if banned

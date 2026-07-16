@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import ResourceCard from '@/components/ResourceCard';
 import MeetingCard from '@/components/MeetingCard';
 import WaveHero from '@/components/WaveHero';
@@ -23,72 +23,85 @@ const CATEGORIES = [
 
 async function getFeaturedResources() {
   try {
-    return await prisma.resource.findMany({
-      where: {
-        status: { in: ['FEATURED', 'APPROVED'] },
-        NOT: { contributor: { bio: '__BANNED__' } }
-      },
-      include: {
-        category: true,
-        contributor: { select: { username: true, avatar_url: true } },
-        tags: { include: { tag: true } },
-      },
-      orderBy: [{ status: 'asc' }, { created_at: 'desc' }],
-      take: 6,
-    });
-  } catch { return []; }
+    const { data: resources, error } = await supabaseAdmin
+      .from('resources')
+      .select('*, category:categories(*), contributor:users(username, avatar_url, bio), resource_tags(tag:tags(*))')
+      .in('status', ['FEATURED', 'APPROVED'])
+      .order('status', { ascending: true })
+      .order('created_at', { ascending: false })
+      .limit(6);
+
+    if (error) throw error;
+    
+    // Filter out banned users and map nested tags structure
+    return (resources || [])
+      .filter(r => !r.contributor || r.contributor.bio !== '__BANNED__')
+      .map(r => ({
+        ...r,
+        tags: r.resource_tags || []
+      }));
+  } catch (err) {
+    console.error("HOME PAGE DB ERROR:", err.message);
+    return [];
+  }
 }
 
 async function getUpcomingMeetings() {
   try {
-    return await prisma.meeting.findMany({
-      where: { date: { gte: new Date() } },
-      orderBy: { date: 'asc' },
-      take: 2,
-    });
+    const { data, error } = await supabaseAdmin
+      .from('meetings')
+      .select('*')
+      .gte('date', new Date().toISOString())
+      .order('date', { ascending: true })
+      .limit(2);
+    if (error) throw error;
+    return data || [];
   } catch { return []; }
 }
 
 // DB-based contributors — resource submitters (no GitHub API needed)
 async function getTopContributors() {
   try {
-    // Group approved resources by contributor and count
-    const grouped = await prisma.resource.groupBy({
-      by: ['contributor_id'],
-      where: { status: { in: ['APPROVED', 'FEATURED'] } },
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 8,
-    });
+    // Fetch all approved resources and their contributors
+    const { data: resources, error: resError } = await supabaseAdmin
+      .from('resources')
+      .select('contributor:users(id, username, avatar_url, bio)')
+      .in('status', ['APPROVED', 'FEATURED']);
+      
+    if (resError) throw resError;
+    
+    if (!resources || resources.length === 0) return { contributors: [] };
 
-    if (!grouped.length) return { contributors: [] };
-
-    // Fetch user details for each contributor
-    const users = await prisma.user.findMany({
-      where: {
-        id: { in: grouped.map(g => g.contributor_id) },
-        NOT: { bio: '__BANNED__' }
-      },
-      select: { id: true, username: true, avatar_url: true },
-    });
-
-    const userMap = Object.fromEntries(users.map(u => [u.id, u]));
-
-    const contributors = grouped
-      .map(g => {
-        const u = userMap[g.contributor_id];
-        if (!u) return null;
+    // Group in JS
+    const userMap = {};
+    const counts = {};
+    
+    for (const r of resources) {
+      const u = r.contributor;
+      if (u && u.bio !== '__BANNED__') {
+        counts[u.id] = (counts[u.id] || 0) + 1;
+        if (!userMap[u.id]) userMap[u.id] = u;
+      }
+    }
+    
+    const contributors = Object.entries(counts)
+      .map(([id, count]) => {
+        const u = userMap[id];
         return {
           login: u.username || 'Anonymous',
           avatar_url: u.avatar_url || `https://ui-avatars.com/api/?name=${u.username}&background=6366f1&color=fff`,
           profile_url: u.username ? `https://github.com/${u.username}` : '#',
-          resource_count: g._count.id,
+          resource_count: count,
         };
       })
-      .filter(Boolean);
+      .sort((a, b) => b.resource_count - a.resource_count)
+      .slice(0, 8);
 
     return { contributors };
-  } catch { return { contributors: [] }; }
+  } catch (err) {
+    console.error("Top contributors error:", err.message);
+    return { contributors: [] };
+  }
 }
 
 export const metadata = {

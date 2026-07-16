@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 async function isAdmin() {
   try {
@@ -49,7 +49,8 @@ export async function PUT(request, { params }) {
   }
 
   try {
-    const meeting = await prisma.meeting.update({ where: { id }, data });
+    const { data: meeting, error } = await supabaseAdmin.from('meetings').update(data).eq('id', id).select().single();
+    if (error) throw error;
     return NextResponse.json({ success: true, meeting });
   } catch (err) {
     console.error('[PUT /api/admin/meetings/[id]] Error:', err.message);
@@ -61,9 +62,11 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
+  const { id } = await params;
+
   try {
-    const { id } = await params;
-    await prisma.meeting.delete({ where: { id } });
+    const { error } = await supabaseAdmin.from('meetings').delete().eq('id', id);
+    if (error) throw error;
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error('[DELETE /api/admin/meetings/[id]] Error:', err.message);

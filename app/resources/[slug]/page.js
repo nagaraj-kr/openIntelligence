@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import StatusBadge from '@/components/StatusBadge';
 import { parseGitHubUrl } from '@/lib/github';
 import ResourceTabs from './ResourceTabs';
@@ -52,11 +52,13 @@ async function getRepoForkers(githubUrl) {
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   try {
-    const resource = await prisma.resource.findUnique({
-      where: { slug },
-      select: { title: true, description: true },
-    });
-    if (!resource) return { title: 'Resource Not Found' };
+    const { data: resource, error } = await supabaseAdmin
+      .from('resources')
+      .select('title, description')
+      .eq('slug', slug)
+      .single();
+      
+    if (error || !resource) return { title: 'Resource Not Found' };
     return {
       title: resource.title,
       description: resource.description,
@@ -71,14 +73,20 @@ export default async function ResourceDetailPage({ params }) {
 
   let resource;
   try {
-    resource = await prisma.resource.findUnique({
-      where: { slug },
-      include: {
-        category:    true,
-        contributor: { select: { username: true, avatar_url: true, full_name: true, bio: true } },
-        tags:        { include: { tag: true } },
-      },
-    });
+    const { data, error } = await supabaseAdmin
+      .from('resources')
+      .select('*, category:categories(*), contributor:users(username, avatar_url, full_name, bio), resource_tags(tag:tags(*))')
+      .eq('slug', slug)
+      .single();
+      
+    if (error || !data) {
+      resource = null;
+    } else {
+      resource = {
+        ...data,
+        tags: data.resource_tags || []
+      };
+    }
   } catch {
     resource = null;
   }
@@ -86,10 +94,12 @@ export default async function ResourceDetailPage({ params }) {
   if (!resource) notFound();
 
   // Async fire-and-forget view increment
-  prisma.resource.update({
-    where: { id: resource.id },
-    data: { views: { increment: 1 } }
-  }).catch(console.error);
+  supabaseAdmin
+    .from('resources')
+    .update({ views: resource.views + 1 })
+    .eq('id', resource.id)
+    .then()
+    .catch(console.error);
 
   // Fetch GitHub forkers for this specific repo (parallel with other data already loaded)
   const { forkers, forkCount } = await getRepoForkers(resource.github_url);

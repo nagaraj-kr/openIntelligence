@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // Check admin via cookie (not Supabase)
 async function isAdmin() {
@@ -18,38 +18,38 @@ export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   try {
-    const [total, pending, approved, featured, rejected, contributors, pending_list, all_resources, meetings, users_list] = await prisma.$transaction([
-      prisma.resource.count(),
-      prisma.resource.count({ where: { status: 'PENDING' } }),
-      prisma.resource.count({ where: { status: 'APPROVED' } }),
-      prisma.resource.count({ where: { status: 'FEATURED' } }),
-      prisma.resource.count({ where: { status: 'REJECTED' } }),
-      prisma.user.count({ where: { role: 'CONTRIBUTOR' } }),
-      prisma.resource.findMany({
-        where:   { status: 'PENDING' },
-        include: { category: true, contributor: { select: { username: true, avatar_url: true } }, tags: { include: { tag: true } } },
-        orderBy: { created_at: 'asc' },
-      }),
-      prisma.resource.findMany({
-        include: { category: true, contributor: { select: { username: true } } },
-        orderBy: { created_at: 'desc' },
-        take: 50,
-      }),
-      prisma.meeting.findMany({ orderBy: { date: 'desc' } }),
-      prisma.user.findMany({
-        include: {
-          resources: { select: { id: true, status: true } }
-        },
-        orderBy: { created_at: 'desc' }
-      })
+    const [
+      totalRes, pendingRes, approvedRes, featuredRes, rejectedRes, contributorsRes,
+      pendingListRes, allResourcesRes, meetingsRes, usersRes
+    ] = await Promise.all([
+      supabaseAdmin.from('resources').select('*', { count: 'exact', head: true }),
+      supabaseAdmin.from('resources').select('*', { count: 'exact', head: true }).eq('status', 'PENDING'),
+      supabaseAdmin.from('resources').select('*', { count: 'exact', head: true }).eq('status', 'APPROVED'),
+      supabaseAdmin.from('resources').select('*', { count: 'exact', head: true }).eq('status', 'FEATURED'),
+      supabaseAdmin.from('resources').select('*', { count: 'exact', head: true }).eq('status', 'REJECTED'),
+      supabaseAdmin.from('users').select('*', { count: 'exact', head: true }).eq('role', 'CONTRIBUTOR'),
+      
+      supabaseAdmin.from('resources').select('*, category:categories(*), contributor:users(username, avatar_url), resource_tags(tag:tags(*))').eq('status', 'PENDING').order('created_at', { ascending: true }),
+      supabaseAdmin.from('resources').select('*, category:categories(*), contributor:users(username)').order('created_at', { ascending: false }).limit(50),
+      supabaseAdmin.from('meetings').select('*').order('date', { ascending: false }),
+      supabaseAdmin.from('users').select('*, resources(id, status)').order('created_at', { ascending: false })
     ]);
 
+    const pending_list = (pendingListRes.data || []).map(r => ({ ...r, tags: r.resource_tags || [] }));
+
     return NextResponse.json({
-      stats: { total, pending, approved, featured, rejected, contributors },
+      stats: {
+        total: totalRes.count || 0,
+        pending: pendingRes.count || 0,
+        approved: approvedRes.count || 0,
+        featured: featuredRes.count || 0,
+        rejected: rejectedRes.count || 0,
+        contributors: contributorsRes.count || 0
+      },
       pending: pending_list,
-      resources: all_resources,
-      meetings,
-      users: users_list,
+      resources: allResourcesRes.data || [],
+      meetings: meetingsRes.data || [],
+      users: usersRes.data || [],
     });
   } catch (err) {
     console.error('[GET /api/admin/data]', err.message);

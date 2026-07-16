@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import nodemailer from 'nodemailer';
 
 export async function POST(request) {
@@ -11,20 +11,18 @@ export async function POST(request) {
     }
 
     // 1. Save to Database
-    const registration = await prisma.eventRegistration.create({
-      data: {
-        meeting_id,
-        name,
-        email,
-        phone,
-        interested: interested === 'yes' || interested === true,
-      },
-    });
+    const { data: registration, error: regError } = await supabaseAdmin.from('event_registrations').insert({
+      meeting_id,
+      name,
+      email,
+      phone,
+      interested: interested === 'yes' || interested === true,
+    }).select().single();
+
+    if (regError) throw regError;
 
     // 2. Fetch Meeting Details for the Email
-    const meeting = await prisma.meeting.findUnique({
-      where: { id: meeting_id }
-    });
+    const { data: meeting } = await supabaseAdmin.from('meetings').select('*').eq('id', meeting_id).single();
 
     // 3. Send Confirmation Email
     try {

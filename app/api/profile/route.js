@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET() {
   try {
@@ -20,14 +20,16 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const [profile, resources] = await Promise.all([
-      prisma.user.findUnique({ where: { id: user.id } }),
-      prisma.resource.findMany({
-        where:   { contributor_id: user.id },
-        include: { category: true, tags: { include: { tag: true } } },
-        orderBy: { created_at: 'desc' },
-      }),
+    const [profileRes, resourcesRes] = await Promise.all([
+      supabaseAdmin.from('users').select('*').eq('id', user.id).single(),
+      supabaseAdmin.from('resources').select('*, category:categories(*), resource_tags(tag:tags(*))').eq('contributor_id', user.id).order('created_at', { ascending: false }),
     ]);
+
+    const profile = profileRes.data;
+    const resources = (resourcesRes.data || []).map(r => ({
+      ...r,
+      tags: r.resource_tags || []
+    }));
 
     return NextResponse.json({ profile, resources });
   } catch (error) {

@@ -1,4 +1,4 @@
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import Link from 'next/link';
 import MeetingCard from '@/components/MeetingCard';
 import MeetingsClient from './MeetingsClient';
@@ -10,17 +10,22 @@ export const metadata = {
 
 async function getMeetings() {
   try {
-    const [upcoming, past] = await Promise.all([
-      prisma.meeting.findMany({
-        where:   { date: { gte: new Date() } },
-        orderBy: { date: 'asc' },
-      }),
-      prisma.meeting.findMany({
-        where:   { date: { lt: new Date() } },
-        orderBy: { date: 'desc' },
-      }),
+    const [upcomingRes, pastRes] = await Promise.all([
+      supabaseAdmin
+        .from('meetings')
+        .select('*')
+        .gte('date', new Date().toISOString())
+        .order('date', { ascending: true }),
+      supabaseAdmin
+        .from('meetings')
+        .select('*')
+        .lt('date', new Date().toISOString())
+        .order('date', { ascending: false }),
     ]);
-    return { upcoming, past };
+    return { 
+      upcoming: upcomingRes.data || [], 
+      past: pastRes.data || [] 
+    };
   } catch {
     return { upcoming: [], past: [] };
   }

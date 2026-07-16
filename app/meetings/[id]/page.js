@@ -1,15 +1,17 @@
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 export default async function MeetingRecapPage({ params }) {
   const { id } = await params;
   
-  const meeting = await prisma.meeting.findUnique({
-    where: { id }
-  });
+  const { data: meeting, error } = await supabaseAdmin
+    .from('meetings')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  if (!meeting) {
+  if (error || !meeting) {
     notFound();
   }
 

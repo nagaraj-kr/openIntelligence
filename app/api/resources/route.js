@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -11,46 +11,42 @@ export async function GET(request) {
   const skip     = (page - 1) * limit;
 
   try {
-    // Build where clause
-    const where = {
-      status: { in: ['APPROVED', 'FEATURED'] },
-      NOT: {
-        contributor: { bio: '__BANNED__' }
-      },
-      ...(search && {
-        OR: [
-          { title:       { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { use_case:    { contains: search, mode: 'insensitive' } },
-        ],
-      }),
-      ...(category !== 'all' && {
-        category: { slug: category },
-      }),
-    };
+    let query = supabaseAdmin
+      .from('resources')
+      .select('*, category:categories!inner(*), contributor:users!inner(username, avatar_url, bio), resource_tags(tag:tags(*))', { count: 'exact' })
+      .in('status', ['APPROVED', 'FEATURED'])
+      .or('bio.neq.__BANNED__,bio.is.null', { foreignTable: 'users' });
+
+    if (search) {
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,use_case.ilike.%${search}%`);
+    }
+
+    if (category !== 'all') {
+      query = query.eq('categories.slug', category);
+    }
 
     // Build orderBy
-    const orderBy =
-      sort === 'stars'    ? { github_stars: 'desc' }  :
-      sort === 'featured' ? { status: 'asc' }          :
-                            { created_at: 'desc' };
+    if (sort === 'stars') {
+      query = query.order('github_stars', { ascending: false });
+    } else if (sort === 'featured') {
+      query = query.order('status', { ascending: true });
+    } else {
+      query = query.order('created_at', { ascending: false });
+    }
 
-    const [resources, total] = await Promise.all([
-      prisma.resource.findMany({
-        where,
-        include: {
-          category:    true,
-          contributor: { select: { username: true, avatar_url: true } },
-          tags:        { include: { tag: true } },
-        },
-        orderBy,
-        skip,
-        take: limit,
-      }),
-      prisma.resource.count({ where }),
-    ]);
+    query = query.range(skip, skip + limit - 1);
 
-    return NextResponse.json({ resources, total, page, limit });
+    const { data: dbResources, count: total, error } = await query;
+
+    if (error) throw error;
+
+    // Map nested tags structure to match expected output
+    const resources = (dbResources || []).map(r => ({
+      ...r,
+      tags: r.resource_tags || []
+    }));
+
+    return NextResponse.json({ resources, total: total || 0, page, limit });
   } catch (error) {
     console.error('Resources API error:', error);
     return NextResponse.json({ resources: [], total: 0, error: error.message }, { status: 500 });
