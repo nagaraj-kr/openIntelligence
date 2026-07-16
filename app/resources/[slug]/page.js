@@ -85,6 +85,12 @@ export default async function ResourceDetailPage({ params }) {
 
   if (!resource) notFound();
 
+  // Async fire-and-forget view increment
+  prisma.resource.update({
+    where: { id: resource.id },
+    data: { views: { increment: 1 } }
+  }).catch(console.error);
+
   // Fetch GitHub forkers for this specific repo (parallel with other data already loaded)
   const { forkers, forkCount } = await getRepoForkers(resource.github_url);
 
@@ -155,12 +161,12 @@ export default async function ResourceDetailPage({ params }) {
             GETTING STARTED
           </h2>
           <div style={{ 
-            background: 'rgba(15,22,35,0.8)', 
+            background: '#f8fafc', 
             border: '1px solid var(--border)', 
             borderRadius: '8px', 
             padding: '1.25rem',
             fontFamily: 'monospace',
-            color: 'var(--text-secondary)',
+            color: 'black',
             fontSize: '0.85rem',
             lineHeight: 1.6
           }}>
@@ -186,7 +192,7 @@ export default async function ResourceDetailPage({ params }) {
               title={f.login}
               style={{ textDecoration: 'none' }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.4rem 1rem 0.4rem 0.4rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', transition: 'background 0.15s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0.4rem 1rem 0.4rem 0.4rem', background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '24px', transition: 'background 0.15s' }}>
                 <img
                   src={f.avatar_url}
                   alt={f.login}
@@ -198,7 +204,7 @@ export default async function ResourceDetailPage({ params }) {
             </a>
           ))}
           {forkCount > forkers.length && (
-            <span style={{ padding: '0.4rem 1rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '24px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            <span style={{ padding: '0.4rem 1rem', background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '24px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
               +{forkCount - forkers.length} more
             </span>
           )}
@@ -212,7 +218,31 @@ export default async function ResourceDetailPage({ params }) {
   );
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '2.5rem', paddingBottom: '5rem' }}>
+    <div className="resource-detail-page" style={{ minHeight: '100vh', paddingTop: '2.5rem', paddingBottom: '5rem', backgroundColor: 'white' }}>
+      <style>{`
+        .resource-detail-page {
+          --text-primary: black;
+          --text-secondary: black;
+          --text-muted: black;
+          --border: rgba(0,0,0,0.15);
+        }
+        .resource-detail-page .glass-card {
+          background: white !important;
+          border: 1px solid black !important;
+        }
+        .resource-detail-page .glass-card:hover {
+          border-color: #1a64d7 !important;
+          box-shadow: 0 0 30px rgba(26,100,215, 0.3) !important;
+        }
+        .resource-detail-page .btn-outline {
+          color: black !important;
+          border-color: black !important;
+        }
+        .resource-detail-page .btn-outline:hover {
+          background: rgba(26,100,215, 0.1) !important;
+          box-shadow: 0 0 20px rgba(26,100,215, 0.3) !important;
+        }
+      `}</style>
       <div className="container" style={{ maxWidth: '1100px' }}>
         
         {/* Breadcrumb */}
@@ -231,7 +261,7 @@ export default async function ResourceDetailPage({ params }) {
             {category && (
               <span style={{
                 padding: '0.2rem 0.6rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600,
-                background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)',
+                background: 'rgba(0,0,0,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)',
                 display: 'inline-flex', alignItems: 'center', gap: '0.3rem'
               }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 6h16M4 12h16M4 18h7"></path></svg>
@@ -262,13 +292,13 @@ export default async function ResourceDetailPage({ params }) {
 
             {/* Right Buttons */}
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <button className="btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--text-primary)', borderColor: 'var(--border)', background: 'var(--bg-primary)' }}>
+              <button className="btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', color: 'var(--text-primary)', borderColor: 'var(--border)', background: 'transparent' }}>
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
                 <span style={{ marginLeft: '4px' }}>Like</span> 
-                <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>{github_stars || 0}</span>
+                <span style={{ background: 'rgba(0,0,0,0.1)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>{github_stars || 0}</span>
               </button>
               
-              <a href={github_url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: '#111827', color: 'white', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <a href={github_url} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', background: '#111827', color: 'white', border: '1px solid rgba(0,0,0,0.1)' }}>
                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
                 <span style={{ marginLeft: '4px' }}>View on GitHub</span>
               </a>
@@ -294,7 +324,7 @@ export default async function ResourceDetailPage({ params }) {
             </div>
             <div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>VIEWS</div>
-              <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.9rem' }}>{(github_stars * 4 + 120).toLocaleString()}</div>
+              <div style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.9rem' }}>{(resource.views || 0).toLocaleString()}</div>
             </div>
             <div>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>FORKS</div>
@@ -369,10 +399,6 @@ export default async function ResourceDetailPage({ params }) {
                     <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{updatedAgo}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-secondary)' }}>License</span>
-                  <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>MIT</span>
-                </div>
               </div>
             </div>
 

@@ -50,7 +50,7 @@ async function getTopContributors() {
     // Group approved resources by contributor and count
     const grouped = await prisma.resource.groupBy({
       by: ['contributor_id'],
-      where: { status: { in: ['APPROVED', 'FEATURED'] }, contributor_id: { not: null } },
+      where: { status: { in: ['APPROVED', 'FEATURED'] } },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 8,
@@ -171,14 +171,14 @@ export default async function HomePage() {
       </section>
 
       {/* ── HERO TEXT & FEATURED RESOURCES ─────────────────────── */}
-      <section className="section" style={{ paddingTop: '5rem', paddingBottom: '3rem', background: 'rgba(29, 26, 26, 1)ff' }}>
+      <section className="section" style={{ paddingTop: '5rem', paddingBottom: '3rem', background: "white" }}>
         <div className="container">
           {/* Added Hero Text */}
           <div style={{ maxWidth: '800px', marginBottom: '4rem', textAlign: 'left' }}>
             <div style={{ color: '#d97706', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
               MADURAI AI COMMUNITY &middot; PIBI FOUNDATION
             </div>
-            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 700, color: 'rgba(237, 237, 237, 1)ff', lineHeight: 1.2, marginBottom: '1.25rem' }}>
+            <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.75rem)', fontWeight: 700, color: 'black', lineHeight: 1.2, marginBottom: '1.25rem' }}>
               The community-curated home for<br />open-source AI.
             </h2>
             <p style={{ fontSize: '1rem', color: '#475569', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '750px' }}>

@@ -71,6 +71,7 @@ model Resource {
   contributor_id      String
   status              ResourceStatus  @default(PENDING)
   github_stars        Int             @default(0)
+  views               Int             @default(0)
   github_language     String?
   github_last_updated DateTime?
   use_case            String
