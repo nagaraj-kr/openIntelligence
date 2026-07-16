@@ -6,9 +6,10 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
 const NAV_LINKS = [
-  { href: '/',          label: 'Home'      },
+  { href: '/',          label: 'Home' },
   { href: '/resources', label: 'Resources' },
-  { href: '/meetings',  label: 'Meetings'  },
+  { href: '/meetings',  label: 'Book Meetings' },
+  { href: '/contribute',label: 'Contribute' },
 ];
 
 export default function Navbar() {
@@ -55,6 +56,10 @@ export default function Navbar() {
         .nb-desktop-auth    { display: flex; }
         .nb-hamburger       { display: none; }
 
+        @media (min-width: 769px) {
+          .nb-desktop-links { display: flex !important; }
+        }
+
         /* ── Mobile / Tablet (≤ 768px): hide desktop auth, show hamburger ── */
         @media (max-width: 768px) {
           .nb-desktop-auth  { display: none !important; }
@@ -76,22 +81,47 @@ export default function Navbar() {
         }}>
 
           {/* ── Logo ── */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
-              width: 36, height: 36,
-              background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
-              borderRadius: '10px',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '1rem', fontWeight: 800, color: 'white',
-              fontFamily: 'var(--font-display)',
-            }}>OI</div>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
-              Open<span style={{ color: '#6366f1' }}>Intelligence</span>
-            </span>
-          </Link>
+          <div style={{ flex: 1, display: 'flex' }}>
+            <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: 36, height: 36,
+                background: 'linear-gradient(135deg, #6366f1, #06b6d4)',
+                borderRadius: '10px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '1rem', fontWeight: 800, color: 'white',
+                fontFamily: 'var(--font-display)',
+              }}>OI</div>
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                Open<span style={{ color: '#6366f1' }}>Intelligence</span>
+              </span>
+            </Link>
+          </div>
+
+          {/* ── Desktop Links (Center) ── */}
+          {!user && (
+            <div className="nb-desktop-links" style={{ display: 'none', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}>
+              {NAV_LINKS.map(({ href, label }) => {
+                const isActive = pathname === href;
+                return (
+                  <Link key={href} href={href} style={{
+                    textDecoration: 'none',
+                    color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                    fontWeight: isActive ? 600 : 500,
+                    fontSize: '0.9rem',
+                    padding: '0.45rem 0.9rem',
+                    borderRadius: '8px',
+                    background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    transition: 'all 0.2s',
+                  }}>
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* ── Right side ── */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
 
             {/* DESKTOP ONLY — Login/Signup or user actions */}
             <div className="nb-desktop-auth" style={{ alignItems: 'center', gap: '0.75rem' }}>
