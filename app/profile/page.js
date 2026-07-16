@@ -21,6 +21,9 @@ export default function ProfilePage() {
   const [githubUsername, setGithubUsername] = useState('');
   const [linkSaving, setLinkSaving] = useState(false);
   const [linkSuccess, setLinkSuccess] = useState('');
+  
+  // Expanded meetings for showing outcomes
+  const [expandedMeetings, setExpandedMeetings] = useState({});
 
   useEffect(() => {
     async function load() {
@@ -85,7 +88,7 @@ export default function ProfilePage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '2.5rem', paddingBottom: '4rem' }}>
-      <div className="container" style={{ maxWidth: '860px' }}>
+      <div className="container" style={{ maxWidth: '1000px' }}>
 
         {/* Profile header */}
         {user && (
@@ -124,6 +127,91 @@ export default function ProfilePage() {
             </Link>
           </div>
         )}
+
+        {/* Your booked meetings */}
+        <div className="glass-card" style={{ marginBottom: '1.5rem', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h2 style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1.05rem', margin: '0 0 0.25rem 0' }}>Your booked meetings</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>Seats you've reserved at community meetups.</p>
+            </div>
+            <Link href="/meetings" className="btn-outline" style={{ fontSize: '0.85rem', padding: '0.4rem 1rem' }}>
+              Browse meetings &rarr;
+            </Link>
+          </div>
+          {attendedMeetings.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {attendedMeetings.map((reg, index) => {
+                if (!reg.meeting) return null;
+                const mDate = new Date(reg.meeting.date);
+                const monthShort = mDate.toLocaleDateString('en-IN', { month: 'short' }).toUpperCase();
+                const dayNum = mDate.getDate();
+                const dayOfWeek = mDate.toLocaleDateString('en-IN', { weekday: 'short' });
+                const monthNorm = mDate.toLocaleDateString('en-IN', { month: 'short' });
+                const timeStr = mDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+                
+                const bDate = new Date(reg.created_at);
+                const bookedDay = bDate.getDate();
+                const bookedMonth = bDate.toLocaleDateString('en-IN', { month: 'short' });
+                const bookedYear = bDate.getFullYear();
+                
+                // Check if upcoming
+                const isUpcoming = mDate > new Date();
+
+                return (
+                  <div key={reg.id} style={{ borderBottom: index < attendedMeetings.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+                      {/* Date Block */}
+                      <div style={{ 
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        background: '#f8f7f4', borderRadius: '8px', padding: '0.5rem 0.7rem', minWidth: '55px'
+                      }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9c814b', textTransform: 'uppercase', marginBottom: '0.1rem' }}>{monthShort}</span>
+                        <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#18181b', lineHeight: 1.1 }}>{dayNum}</span>
+                      </div>
+
+                      <div style={{ flex: 1, minWidth: '200px', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                          <Link href={`/meetings/${reg.meeting.id}`} style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '1.05rem', textDecoration: 'none' }}>
+                            {reg.meeting.title}
+                          </Link>
+                          <span style={{ 
+                            background: isUpcoming ? '#dcfce7' : 'rgba(0,0,0,0.05)', 
+                            color: isUpcoming ? '#166534' : 'var(--text-secondary)', 
+                            padding: '2px 8px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase' 
+                          }}>
+                            {isUpcoming ? 'UPCOMING' : 'PAST'}
+                          </span>
+                        </div>
+                        
+                        <p style={{ color: '#52525b', fontSize: '0.85rem', margin: 0 }}>
+                          {dayOfWeek} {dayNum} {monthNorm}, {timeStr} &middot; {reg.meeting.venue}
+                        </p>
+                        <p style={{ color: '#a1a1aa', fontSize: '0.8rem', margin: 0 }}>
+                          Booked {bookedDay} {bookedMonth} {bookedYear} &middot; Host {reg.meeting.host || 'Nagaraj K R'}
+                        </p>
+                      </div>
+
+                      <Link 
+                        href={`/meetings/${reg.meeting.id}`}
+                        className="btn-outline" 
+                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', alignSelf: 'center', whiteSpace: 'nowrap', textDecoration: 'none' }}
+                      >
+                        View Details &rarr;
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div style={{ padding: '3rem', textAlign: 'center' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+                No bookings yet. <Link href="/meetings" style={{ color: 'var(--text-primary)', textDecoration: 'underline' }}>Reserve a seat</Link> at the next meetup.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Account Linking Prompts */}
         <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -252,36 +340,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* Attended Meetings */}
-        {activeTab === 'all' && attendedMeetings.length > 0 && (
-          <div style={{ marginTop: '3rem' }}>
-            <h2 style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.25rem', fontFamily: 'var(--font-display)', marginBottom: '1rem' }}>
-              Attended Sessions
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {attendedMeetings.map((reg) => reg.meeting && (
-                <div key={reg.id} className="glass-card" style={{ padding: '1.1rem 1.25rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <div style={{ flex: 1, minWidth: '200px' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-                      <Link href={`/meetings/${reg.meeting.id}`} style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
-                        {reg.meeting.title}
-                      </Link>
-                      <span style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600 }}>
-                        Registered
-                      </span>
-                    </div>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0 }}>
-                      {new Date(reg.meeting.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })} · {reg.meeting.venue}
-                    </p>
-                  </div>
-                  <Link href={`/meetings/${reg.meeting.id}`} className="btn-outline" style={{ fontSize: '0.75rem', padding: '0.3rem 0.7rem' }}>
-                    View Details →
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );

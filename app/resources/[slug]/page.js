@@ -255,14 +255,23 @@ export default async function ResourceDetailPage({ params }) {
       `}</style>
       <div className="container" style={{ maxWidth: '1100px' }}>
         
-        {/* Breadcrumb */}
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          <Link href="/" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Home</Link>
-          <span>/</span>
-          <Link href="/resources" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Resources</Link>
-          <span>/</span>
-          <span style={{ color: 'var(--text-secondary)' }}>{title}</span>
-        </div>
+        {/* Back Button */}
+        <Link 
+          href="/resources" 
+          className="glass-card" 
+          style={{ 
+            padding: '0.5rem 1rem', 
+            borderRadius: '8px', 
+            color: 'var(--text-primary)', 
+            textDecoration: 'none',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            display: 'inline-block',
+            marginBottom: '1.5rem'
+          }}
+        >
+          ← Back to resources
+        </Link>
 
         {/* Top Header Card */}
         <div className="glass-card" style={{ padding: '2rem', marginBottom: '2rem', borderRadius: '12px' }}>
@@ -412,24 +421,7 @@ export default async function ResourceDetailPage({ params }) {
               </div>
             </div>
 
-            {/* Back Button */}
-            <Link 
-              href="/resources" 
-              className="glass-card" 
-              style={{ 
-                padding: '1rem', 
-                borderRadius: '12px', 
-                textAlign: 'center', 
-                color: 'var(--text-primary)', 
-                textDecoration: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 500,
-                display: 'block',
-                marginTop: '0.5rem'
-              }}
-            >
-              ← Back to resources
-            </Link>
+
 
           </div>
         </div>

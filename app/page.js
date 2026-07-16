@@ -6,19 +6,10 @@ import MeetingCard from '@/components/MeetingCard';
 import WaveHero from '@/components/WaveHero';
 import HeroEventCard from '@/components/HeroEventCard';
 import BanAlert from '@/components/BanAlert';
+import ExploreSection from '@/components/ExploreSection';
 
 
-// 7 categories from the project document
-const CATEGORIES = [
-  { icon: '📚', name: 'Public Datasets', slug: 'dataset', desc: 'High-quality datasets for AI research & model training' },
-  { icon: '💻', name: 'Open GitHub Projects', slug: 'open-repository', desc: 'Open-source repos accelerating AI development' },
-  { icon: '✍️', name: 'Prompt Libraries', slug: 'prompt-library', desc: 'Reusable prompts for consistent AI results' },
-  { icon: '🔌', name: 'MCP Servers', slug: 'mcp-server', desc: 'Connectors linking AI agents to tools & APIs' },
-  { icon: '🧠', name: 'RAG Templates', slug: 'rag-template', desc: 'Retrieval-Augmented Generation pipelines & examples' },
-  { icon: '⚙️', name: 'AI Workflows & Automation', slug: 'ai-workflow', desc: 'Reusable automation playbooks for real-world tasks' },
-  { icon: '📖', name: 'Documentation & Tutorials', slug: 'documentation', desc: 'Guides & tutorials that make AI accessible' },
-];
-
+// 7 categories from the project document are now in ExploreSection.js
 
 
 async function getFeaturedResources() {
@@ -146,53 +137,8 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── CATEGORIES ─────────────────────────────────────────── */}
-      <section className="section" style={{ paddingTop: '4rem', paddingBottom: '3rem' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-              What We Explore
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-              7 categories of open AI resources for the community
-            </p>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: '1rem',
-          }}>
-            {CATEGORIES.map(({ icon, name, slug, desc }) => (
-              <Link key={slug} href={`/resources?category=${slug}`} style={{ textDecoration: 'none' }}>
-                <div
-                  className="glass-card"
-                  style={{ padding: '1.25rem', display: 'flex', gap: '0.9rem', alignItems: 'flex-start' }}
-                >
-                  <div style={{
-                    width: 44, height: 44, flexShrink: 0,
-                    background: 'rgba(99,102,241,0.12)',
-                    border: '1px solid rgba(99,102,241,0.2)',
-                    borderRadius: '12px',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '1.35rem',
-                  }}>
-                    {icon}
-                  </div>
-                  <div>
-                    <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', margin: '0 0 0.3rem', lineHeight: 1.3 }}>
-                      {name}
-                    </h3>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0, lineHeight: 1.5 }}>
-                      {desc}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── CATEGORIES (GSAP Animated) ─────────────────────────── */}
+      <ExploreSection />
 
       {/* ── HERO TEXT & FEATURED RESOURCES ─────────────────────── */}
       <section className="section" style={{ paddingTop: '5rem', paddingBottom: '3rem', background: "white" }}>

@@ -9,7 +9,10 @@ export default function MeetingsClient({ upcoming, past }) {
 
   return (
     <>
-      <div style={{ display: 'flex', gap: '2rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ 
+        display: 'flex', gap: '2rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)',
+        position: 'sticky', top: '68px', zIndex: 90, background: 'rgba(5,8,16,0.95)', backdropFilter: 'blur(12px)', padding: '0 10px'
+      }}>
         <button 
           onClick={() => setActiveTab('upcoming')}
           style={{ 
