@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function EventRegistrationModal({ meeting, onClose }) {
   const [formData, setFormData] = useState({
@@ -10,6 +11,21 @@ export default function EventRegistrationModal({ meeting, onClose }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setFormData(prev => ({
+          ...prev,
+          name: user.user_metadata?.full_name || user.user_metadata?.user_name || prev.name,
+          email: user.email || prev.email,
+        }));
+      }
+    }
+    loadUser();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

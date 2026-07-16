@@ -55,7 +55,7 @@ async function getUpcomingMeetings() {
       .order('date', { ascending: true })
       .limit(2);
     if (error) throw error;
-    return data || [];
+    return (data || []).map(m => ({ ...m, date: m.date.endsWith('Z') ? m.date : m.date + 'Z' }));
   } catch { return []; }
 }
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import crypto from 'crypto';
 
 function slugify(text) {
   return text
@@ -75,7 +76,7 @@ export async function POST(request) {
     for (const name of tags) {
       let { data: tag } = await supabaseAdmin.from('tags').select('id').eq('name', name).single();
       if (!tag) {
-        const { data: newTag, error: tagErr } = await supabaseAdmin.from('tags').insert({ name }).select('id').single();
+        const { data: newTag, error: tagErr } = await supabaseAdmin.from('tags').insert({ id: crypto.randomUUID(), name }).select('id').single();
         if (!tagErr && newTag) tag = newTag;
       }
       if (tag) tagIds.push(tag.id);
@@ -83,6 +84,7 @@ export async function POST(request) {
 
     // Create resource
     const { data: resource, error: resErr } = await supabaseAdmin.from('resources').insert({
+      id:                  crypto.randomUUID(),
       title,
       slug,
       description:         description || '',

@@ -36,6 +36,10 @@ export async function GET() {
     ]);
 
     const pending_list = (pendingListRes.data || []).map(r => ({ ...r, tags: r.resource_tags || [] }));
+    const meetings = (meetingsRes.data || []).map(m => ({
+      ...m,
+      date: m.date.endsWith('Z') ? m.date : m.date + 'Z'
+    }));
 
     return NextResponse.json({
       stats: {
@@ -48,7 +52,7 @@ export async function GET() {
       },
       pending: pending_list,
       resources: allResourcesRes.data || [],
-      meetings: meetingsRes.data || [],
+      meetings: meetings,
       users: usersRes.data || [],
     });
   } catch (err) {

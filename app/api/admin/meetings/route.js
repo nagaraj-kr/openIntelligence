@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+import crypto from 'crypto';
+
 async function isAdmin() {
   try {
     const cookieStore = await cookies();
@@ -24,6 +26,7 @@ export async function POST(request) {
     }
 
     const { data: meeting, error } = await supabaseAdmin.from('meetings').insert({
+      id:                crypto.randomUUID(),
       title,
       description,
       date:              new Date(date).toISOString(),
@@ -36,6 +39,7 @@ export async function POST(request) {
     }).select().single();
 
     if (error) throw error;
+    if (meeting) meeting.date = meeting.date.endsWith('Z') ? meeting.date : meeting.date + 'Z';
 
     return NextResponse.json({ success: true, meeting }, { status: 201 });
   } catch (err) {
@@ -50,7 +54,8 @@ export async function GET() {
     if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const { data: meetings, error } = await supabaseAdmin.from('meetings').select('*').order('date', { ascending: false });
     if (error) throw error;
-    return NextResponse.json({ meetings });
+    const fixedMeetings = meetings.map(m => ({ ...m, date: m.date.endsWith('Z') ? m.date : m.date + 'Z' }));
+    return NextResponse.json({ meetings: fixedMeetings });
   } catch (err) {
     console.error('[GET /api/admin/meetings] Error:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });

@@ -51,6 +51,7 @@ export async function PUT(request, { params }) {
   try {
     const { data: meeting, error } = await supabaseAdmin.from('meetings').update(data).eq('id', id).select().single();
     if (error) throw error;
+    if (meeting) meeting.date = meeting.date.endsWith('Z') ? meeting.date : meeting.date + 'Z';
     return NextResponse.json({ success: true, meeting });
   } catch (err) {
     console.error('[PUT /api/admin/meetings/[id]] Error:', err.message);

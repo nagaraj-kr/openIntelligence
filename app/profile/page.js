@@ -10,8 +10,17 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [resources, setResources] = useState([]);
+  const [attendedMeetings, setAttendedMeetings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
+
+  // Account Linking State
+  const [showEmailLink, setShowEmailLink] = useState(false);
+  const [alternateEmail, setAlternateEmail] = useState('');
+  const [showGithubLink, setShowGithubLink] = useState(false);
+  const [githubUsername, setGithubUsername] = useState('');
+  const [linkSaving, setLinkSaving] = useState(false);
+  const [linkSuccess, setLinkSuccess] = useState('');
 
   useEffect(() => {
     async function load() {
@@ -24,11 +33,35 @@ export default function ProfilePage() {
         const data = await res.json();
         setProfile(data.profile);
         setResources(data.resources || []);
+        setAttendedMeetings(data.attended_meetings || []);
       }
       setLoading(false);
     }
     load();
   }, []);
+
+  const handleSaveLink = async (type) => {
+    setLinkSaving(true);
+    setLinkSuccess('');
+    try {
+      const payload = type === 'email' ? { alternate_email: alternateEmail } : { github_username: githubUsername };
+      const res = await fetch('/api/profile/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setLinkSuccess(type === 'email' ? 'Event Email linked successfully!' : 'GitHub linked successfully!');
+        if (type === 'email') setProfile(prev => ({ ...prev, alternate_email: alternateEmail }));
+        if (type === 'github') setProfile(prev => ({ ...prev, github_username: githubUsername }));
+        // Refresh page to show new meetings
+        if (type === 'email') window.location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setLinkSaving(false);
+  };
 
   const filtered = activeTab === 'all'
     ? resources
@@ -64,9 +97,11 @@ export default function ProfilePage() {
             />
             <div style={{ flex: 1 }}>
               <h1 style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.25rem', fontFamily: 'var(--font-display)', margin: '0 0 0.2rem' }}>
-                {user.user_metadata?.full_name || user.user_metadata?.user_name}
+                {profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.user_name || 'User'}
               </h1>
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>@{user.user_metadata?.user_name}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                @{profile?.github_username || user.user_metadata?.user_name || user.email?.split('@')[0]}
+              </div>
               {profile?.bio && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.35rem' }}>{profile.bio}</div>}
             </div>
 
@@ -89,6 +124,68 @@ export default function ProfilePage() {
             </Link>
           </div>
         )}
+
+        {/* Account Linking Prompts */}
+        <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          
+          {/* Missing GitHub Link (for Google Users) */}
+          {(!profile?.github_username && !user?.user_metadata?.user_name) && (
+            <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #6366f1' }}>
+              <h3 style={{ fontSize: '0.95rem', margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>Do you have a GitHub profile?</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                Link your GitHub username to showcase your profile properly on your submitted resources.
+              </p>
+              {!showGithubLink ? (
+                <button onClick={() => setShowGithubLink(true)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
+                  Link GitHub Username
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. torvalds" 
+                    value={githubUsername} 
+                    onChange={e => setGithubUsername(e.target.value)}
+                    style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: '#fff', fontSize: '0.85rem' }}
+                  />
+                  <button onClick={() => handleSaveLink('github')} disabled={linkSaving} className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
+                    {linkSaving ? 'Saving...' : 'Save'}
+                  </button>
+                  <button onClick={() => setShowGithubLink(false)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>Cancel</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Missing Event Registration Email */}
+          <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #10b981' }}>
+            <h3 style={{ fontSize: '0.95rem', margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>Missing Event Sessions?</h3>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+              We search for attended sessions using <strong>{user?.email}</strong>. If you register for events using a different email (like Gmail), link it here to see them on your profile!
+            </p>
+            {!showEmailLink ? (
+              <button onClick={() => setShowEmailLink(true)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
+                {profile?.alternate_email ? `Linked: ${profile.alternate_email} (Change)` : 'Link Alternate Email'}
+              </button>
+            ) : (
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <input 
+                  type="email" 
+                  placeholder="Your alternate email" 
+                  value={alternateEmail} 
+                  onChange={e => setAlternateEmail(e.target.value)}
+                  style={{ padding: '0.4rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: '#fff', fontSize: '0.85rem' }}
+                />
+                <button onClick={() => handleSaveLink('email')} disabled={linkSaving} className="btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
+                  {linkSaving ? 'Saving...' : 'Save'}
+                </button>
+                <button onClick={() => setShowEmailLink(false)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>Cancel</button>
+              </div>
+            )}
+          </div>
+
+          {linkSuccess && <div style={{ color: '#34d399', fontSize: '0.85rem', padding: '0.5rem' }}>✓ {linkSuccess}</div>}
+        </div>
 
         {/* Tab filter */}
         <div style={{ display: 'flex', gap: '0.4rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
@@ -152,6 +249,37 @@ export default function ProfilePage() {
             {activeTab === 'all' && (
               <Link href="/submit" className="btn-primary">Submit your first resource →</Link>
             )}
+          </div>
+        )}
+
+        {/* Attended Meetings */}
+        {activeTab === 'all' && attendedMeetings.length > 0 && (
+          <div style={{ marginTop: '3rem' }}>
+            <h2 style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.25rem', fontFamily: 'var(--font-display)', marginBottom: '1rem' }}>
+              Attended Sessions
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {attendedMeetings.map((reg) => reg.meeting && (
+                <div key={reg.id} className="glass-card" style={{ padding: '1.1rem 1.25rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: '200px' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
+                      <Link href={`/meetings/${reg.meeting.id}`} style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', textDecoration: 'none' }}>
+                        {reg.meeting.title}
+                      </Link>
+                      <span style={{ background: 'rgba(52,211,153,0.1)', color: '#34d399', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 600 }}>
+                        Registered
+                      </span>
+                    </div>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: 0 }}>
+                      {new Date(reg.meeting.date).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })} · {reg.meeting.venue}
+                    </p>
+                  </div>
+                  <Link href={`/meetings/${reg.meeting.id}`} className="btn-outline" style={{ fontSize: '0.75rem', padding: '0.3rem 0.7rem' }}>
+                    View Details →
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

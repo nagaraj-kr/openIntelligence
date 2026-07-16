@@ -23,8 +23,8 @@ async function getMeetings() {
         .order('date', { ascending: false }),
     ]);
     return { 
-      upcoming: upcomingRes.data || [], 
-      past: pastRes.data || [] 
+      upcoming: (upcomingRes.data || []).map(m => ({ ...m, date: m.date.endsWith('Z') ? m.date : m.date + 'Z' })), 
+      past: (pastRes.data || []).map(m => ({ ...m, date: m.date.endsWith('Z') ? m.date : m.date + 'Z' })) 
     };
   } catch {
     return { upcoming: [], past: [] };

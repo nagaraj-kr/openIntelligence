@@ -46,6 +46,7 @@ export async function GET(request) {
           username:   githubUsername || supabaseUser.email || 'user',
           full_name:  supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || '',
           avatar_url: supabaseUser.user_metadata?.avatar_url || '',
+          github_username: githubUsername || null,
           ...(isAdmin ? { role: 'ADMIN' } : {}),
         };
 
@@ -60,6 +61,7 @@ export async function GET(request) {
             username:   githubUsername || supabaseUser.email || 'user',
             full_name:  supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name || '',
             avatar_url: supabaseUser.user_metadata?.avatar_url || '',
+            github_username: githubUsername || null,
             role:       isAdmin ? 'ADMIN' : 'CONTRIBUTOR',
           }).select().single();
           dbUser = inserted;

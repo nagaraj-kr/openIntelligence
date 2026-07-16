@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 export async function POST(request) {
   try {
@@ -12,6 +13,7 @@ export async function POST(request) {
 
     // 1. Save to Database
     const { data: registration, error: regError } = await supabaseAdmin.from('event_registrations').insert({
+      id: crypto.randomUUID(),
       meeting_id,
       name,
       email,
