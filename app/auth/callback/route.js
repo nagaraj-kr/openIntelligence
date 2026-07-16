@@ -40,8 +40,9 @@ export async function GET(request) {
 
       const isAdmin = adminUsernames.includes(githubUsername.toLowerCase());
 
+      let dbUser;
       try {
-        await prisma.user.upsert({
+        dbUser = await prisma.user.upsert({
           where:  { id: supabaseUser.id },
           update: {
             username:   githubUsername || supabaseUser.email || 'user',
@@ -60,6 +61,12 @@ export async function GET(request) {
         });
       } catch (dbError) {
         console.error('Error saving user profile:', dbError);
+      }
+
+      // Deny access if banned
+      if (dbUser?.bio === '__BANNED__') {
+        await supabase.auth.signOut();
+        return NextResponse.redirect(`${origin}/?error=banned`);
       }
 
       // Redirect admin to admin panel, others to home

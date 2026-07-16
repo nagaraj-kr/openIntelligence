@@ -18,7 +18,7 @@ export async function GET() {
   if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   try {
-    const [total, pending, approved, featured, rejected, contributors, pending_list, all_resources, meetings] = await prisma.$transaction([
+    const [total, pending, approved, featured, rejected, contributors, pending_list, all_resources, meetings, users_list] = await prisma.$transaction([
       prisma.resource.count(),
       prisma.resource.count({ where: { status: 'PENDING' } }),
       prisma.resource.count({ where: { status: 'APPROVED' } }),
@@ -36,6 +36,12 @@ export async function GET() {
         take: 50,
       }),
       prisma.meeting.findMany({ orderBy: { date: 'desc' } }),
+      prisma.user.findMany({
+        include: {
+          resources: { select: { id: true, status: true } }
+        },
+        orderBy: { created_at: 'desc' }
+      })
     ]);
 
     return NextResponse.json({
@@ -43,6 +49,7 @@ export async function GET() {
       pending: pending_list,
       resources: all_resources,
       meetings,
+      users: users_list,
     });
   } catch (err) {
     console.error('[GET /api/admin/data]', err.message);

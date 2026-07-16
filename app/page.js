@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import prisma from '@/lib/prisma';
 import ResourceCard from '@/components/ResourceCard';
 import MeetingCard from '@/components/MeetingCard';
 import WaveHero from '@/components/WaveHero';
 import HeroEventCard from '@/components/HeroEventCard';
+import BanAlert from '@/components/BanAlert';
 
 
 // 7 categories from the project document
@@ -22,7 +24,10 @@ const CATEGORIES = [
 async function getFeaturedResources() {
   try {
     return await prisma.resource.findMany({
-      where: { status: { in: ['FEATURED', 'APPROVED'] } },
+      where: {
+        status: { in: ['FEATURED', 'APPROVED'] },
+        NOT: { contributor: { bio: '__BANNED__' } }
+      },
       include: {
         category: true,
         contributor: { select: { username: true, avatar_url: true } },
@@ -50,7 +55,7 @@ async function getTopContributors() {
     // Group approved resources by contributor and count
     const grouped = await prisma.resource.groupBy({
       by: ['contributor_id'],
-      where: { status: { in: ['APPROVED', 'FEATURED'] }, contributor_id: { not: null } },
+      where: { status: { in: ['APPROVED', 'FEATURED'] } },
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
       take: 8,
@@ -60,8 +65,11 @@ async function getTopContributors() {
 
     // Fetch user details for each contributor
     const users = await prisma.user.findMany({
-      where: { id: { in: grouped.map(g => g.contributor_id) } },
-      select: { id: true, username: true, avatar_url: true, github_username: true },
+      where: {
+        id: { in: grouped.map(g => g.contributor_id) },
+        NOT: { bio: '__BANNED__' }
+      },
+      select: { id: true, username: true, avatar_url: true },
     });
 
     const userMap = Object.fromEntries(users.map(u => [u.id, u]));
@@ -71,9 +79,9 @@ async function getTopContributors() {
         const u = userMap[g.contributor_id];
         if (!u) return null;
         return {
-          login: u.github_username || u.username || 'Anonymous',
+          login: u.username || 'Anonymous',
           avatar_url: u.avatar_url || `https://ui-avatars.com/api/?name=${u.username}&background=6366f1&color=fff`,
-          profile_url: u.github_username ? `https://github.com/${u.github_username}` : '#',
+          profile_url: u.username ? `https://github.com/${u.username}` : '#',
           resource_count: g._count.id,
         };
       })
@@ -97,6 +105,9 @@ export default async function HomePage() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <BanAlert />
+      </Suspense>
       {/* ── HERO — Wave Design ──────────────────────────────────── */}
       <WaveHero />
 

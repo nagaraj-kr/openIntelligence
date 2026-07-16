@@ -22,6 +22,7 @@ export default function SubmitPage() {
   const supabase = createClient();
 
   const [user, setUser]               = useState(null);
+  const [loading, setLoading]         = useState(true);
   const [githubUrl, setGithubUrl]     = useState('');
   const [fetching, setFetching]       = useState(false);
   const [fetchError, setFetchError]   = useState('');
@@ -35,7 +36,20 @@ export default function SubmitPage() {
   const [success, setSuccess]         = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data?.user ?? null));
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data?.user) {
+        // Immediately redirect to GitHub login if not authenticated
+        supabase.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+      } else {
+        setUser(data.user);
+        setLoading(false);
+      }
+    });
   }, []);
 
   // Fetch GitHub repo info
@@ -100,6 +114,14 @@ export default function SubmitPage() {
       setSubmitting(false);
     }
   };
+
+  if (loading || !user) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1rem' }}>
+        <span style={{ color: 'var(--text-muted)' }}>Redirecting to GitHub Login...</span>
+      </div>
+    );
+  }
 
   if (success) {
     return (

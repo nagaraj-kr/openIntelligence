@@ -610,7 +610,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/StatusBadge';
 
-const TABS = ['overview', 'pending', 'resources', 'events', 'contributors', 'settings'];
+const TABS = ['overview', 'pending', 'resources', 'events', 'users', 'contributors', 'settings'];
 
 // ─── Reusable UI Components ───────────────────────────────────────────────────
 function Field({ label, children }) {
@@ -663,6 +663,7 @@ export default function AdminPage() {
   const [pending, setPending] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [meetings, setMeetings] = useState([]);
+  const [users, setUsers] = useState([]);
 
   // Create/Edit event form
   const [showEventForm, setShowEventForm] = useState(false);
@@ -678,6 +679,8 @@ export default function AdminPage() {
   const [outcomeForm, setOutcomeForm] = useState({ outcome_title: '', outcome_summary: '', attendees_count: '', tags: '', photos: '' });
   const [savingOutcome, setSavingOutcome] = useState(false);
   const [viewingOutcome, setViewingOutcome] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
+  const [userPage, setUserPage] = useState(1);
 
   // GitHub Contributors
   const [ghData, setGhData] = useState(null);
@@ -716,6 +719,7 @@ export default function AdminPage() {
     setPending(data.pending || []);
     setAllResources(data.resources || []);
     setMeetings(data.meetings || []);
+    setUsers(data.users || []);
   }, []);
 
   useEffect(() => {
@@ -741,6 +745,18 @@ export default function AdminPage() {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ resourceId, action }),
+    });
+    await loadData();
+    setActionLoading('');
+  };
+
+  const handleUserAction = async (userId, action) => {
+    if (action === 'ban' && !confirm('Are you sure you want to ban this user?')) return;
+    setActionLoading(userId + action);
+    await fetch('/api/admin/users/action', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, action }),
     });
     await loadData();
     setActionLoading('');
@@ -957,6 +973,7 @@ export default function AdminPage() {
             { id: 'pending', icon: '🕒', label: 'Pending Review', count: pending.length },
             { id: 'resources', icon: '📦', label: 'Resources' },
             { id: 'events', icon: '📅', label: 'Events', count: meetings.length },
+            { id: 'users', icon: '👥', label: 'Users', count: users.length },
             { id: 'contributors', icon: '🧑‍💻', label: 'Contributors', count: ghData?.summary?.contributors || 0 },
             { id: 'settings', icon: '⚙️', label: 'Settings' },
           ].map(tab => (
@@ -1473,6 +1490,134 @@ export default function AdminPage() {
           </div>
         )}
 
+
+        {/* ── USERS ─────────────────────────────────────────────────────────── */}
+        {activeTab === 'users' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {users.length === 0 ? (
+              <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', borderRadius: '16px' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>👥</div>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No registered users yet.</p>
+              </div>
+            ) : (() => {
+              const usersPerPage = 10;
+              const totalUserPages = Math.ceil(users.length / usersPerPage);
+              const currentUsers = users.slice((userPage - 1) * usersPerPage, userPage * usersPerPage);
+              
+              return (
+                <div style={{ paddingBottom: '6rem' }}>
+                  {currentUsers.map((u) => {
+                    const totalSubs = u.resources?.length || 0;
+                    const approvedSubs = u.resources?.filter(r => r.status === 'APPROVED' || r.status === 'FEATURED').length || 0;
+                    const isBanned = u.bio === '__BANNED__';
+                    
+                    return (
+                      <div key={u.id} className="glass-card" style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap', borderRadius: '12px', opacity: isBanned ? 0.6 : 1, marginBottom: '0.75rem' }}>
+                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '220px' }}>
+                          <img src={u.avatar_url} alt={u.username} style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+                          <div>
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                              <span style={{ color: isBanned ? '#f87171' : 'var(--text-primary)', fontWeight: 700, fontSize: '1rem', textDecoration: isBanned ? 'line-through' : 'none' }}>{u.full_name}</span>
+                              {isBanned && <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'rgba(239,68,68,0.15)', color: '#f87171', fontWeight: 700, border: '1px solid rgba(239,68,68,0.3)' }}>BANNED</span>}
+                              <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.5rem', borderRadius: '4px', background: u.role === 'ADMIN' ? 'rgba(239,68,68,0.15)' : 'rgba(99,102,241,0.15)', color: u.role === 'ADMIN' ? '#f87171' : '#818cf8', fontWeight: 700, border: `1px solid ${u.role === 'ADMIN' ? 'rgba(239,68,68,0.3)' : 'rgba(99,102,241,0.3)'}` }}>
+                                {u.role}
+                              </span>
+                            </div>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', margin: '4px 0 0' }}>
+                              @{u.username} · Joined {new Date(u.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{totalSubs}</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Submissions</div>
+                          </div>
+                          <div style={{ textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#34d399' }}>{approvedSubs}</div>
+                            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Approved</div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '0.5rem', minWidth: '160px', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          <a href={`https://github.com/${u.username}`} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                            <Btn variant="outline" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>GitHub ↗</Btn>
+                          </a>
+                          <Btn variant="primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => setViewingUser(u)}>View</Btn>
+                          {isBanned ? (
+                            <Btn variant="success" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => handleUserAction(u.id, 'unban')} disabled={!!actionLoading}>Unban</Btn>
+                          ) : (
+                            <Btn variant="danger" style={{ padding: '0.4rem 0.8rem', fontSize: '0.75rem' }} onClick={() => handleUserAction(u.id, 'ban')} disabled={!!actionLoading}>Ban</Btn>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', alignItems: 'center', padding: '1rem', background: 'rgba(15,23,42,0.9)', backdropFilter: 'blur(10px)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', position: 'fixed', bottom: '2rem', left: 'calc(260px + 3rem)', right: '3rem', zIndex: 50, boxShadow: '0 10px 40px -5px rgba(0, 0, 0, 0.8)' }}>
+                    <Btn variant="outline" onClick={() => setUserPage(p => Math.max(1, p - 1))} disabled={userPage === 1} style={{ padding: '0.4rem 1rem' }}>
+                      Previous
+                    </Btn>
+                    <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 600 }}>
+                      Page {userPage} of {totalUserPages || 1}
+                    </span>
+                    <Btn variant="outline" onClick={() => setUserPage(p => Math.min(totalUserPages, p + 1))} disabled={userPage === totalUserPages || totalUserPages === 0} style={{ padding: '0.4rem 1rem' }}>
+                      Next
+                    </Btn>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* VIEW USER SUBMISSIONS MODAL */}
+        {viewingUser && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(5,8,16,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} onClick={() => setViewingUser(null)}>
+            <div
+              className="glass-card"
+              style={{
+                padding: '2rem',
+                borderRadius: '24px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                width: '100%',
+                maxWidth: '700px',
+                background: 'var(--bg-primary)',
+                boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.7)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                <img src={viewingUser.avatar_url} alt={viewingUser.username} style={{ width: '56px', height: '56px', borderRadius: '50%' }} />
+                <div>
+                  <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.2rem', margin: 0 }}>{viewingUser.full_name}'s Submissions</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>@{viewingUser.username}</p>
+                </div>
+              </div>
+              <div className="custom-scrollbar" style={{ maxHeight: 'calc(80vh - 8rem)', overflowY: 'auto', paddingRight: '0.5rem' }}>
+                {allResources.filter(r => r.contributor_id === viewingUser.id).length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No submissions found for this user.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {allResources.filter(r => r.contributor_id === viewingUser.id).map(r => (
+                      <div key={r.id} style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div>
+                          <Link href={`/resources/${r.slug}`} target="_blank" style={{ color: 'var(--text-primary)', fontWeight: 600, textDecoration: 'none', fontSize: '0.9rem' }}>{r.title} ↗</Link>
+                          <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '4px' }}>{r.category?.name}</div>
+                        </div>
+                        <StatusBadge status={r.status} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
+                <Btn variant="primary" onClick={() => setViewingUser(null)}>Close</Btn>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── CONTRIBUTORS ──────────────────────────────────────────────────── */}
         {activeTab === 'contributors' && (

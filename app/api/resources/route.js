@@ -14,6 +14,9 @@ export async function GET(request) {
     // Build where clause
     const where = {
       status: { in: ['APPROVED', 'FEATURED'] },
+      NOT: {
+        contributor: { bio: '__BANNED__' }
+      },
       ...(search && {
         OR: [
           { title:       { contains: search, mode: 'insensitive' } },

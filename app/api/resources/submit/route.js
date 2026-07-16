@@ -41,6 +41,9 @@ export async function POST(request) {
 
     // Get or create user profile
     let profile = await prisma.user.findUnique({ where: { id: user.id } });
+    if (profile?.bio === '__BANNED__') {
+      return NextResponse.json({ error: 'Your account has been banned. You cannot submit resources.' }, { status: 403 });
+    }
     if (!profile) {
       profile = await prisma.user.create({
         data: {
