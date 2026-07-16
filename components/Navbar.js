@@ -143,12 +143,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={() => setAuthModalOpen(true)} className="btn-outline" style={{
-                    fontSize: '0.85rem', padding: '0.45rem 1rem',
-                    border: '1px solid rgba(99,102,241,0.4)', color: 'rgba(235,250,255,0.9)',
-                  }}>
-                    Login
-                  </button>
                   <button onClick={() => setAuthModalOpen(true)} className="btn-primary" style={{ fontSize: '0.85rem', padding: '0.45rem 1rem' }}>
                     Sign Up
                   </button>
@@ -227,11 +221,6 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <button onClick={() => { setMenuOpen(false); setAuthModalOpen(true); }} style={{
-                    padding: '0.75rem', borderRadius: '8px', cursor: 'pointer',
-                    background: 'transparent', border: '1px solid rgba(99,102,241,0.4)',
-                    color: 'rgba(235,250,255,0.9)', fontWeight: 500,
-                  }}>Login</button>
                   <button onClick={() => { setMenuOpen(false); setAuthModalOpen(true); }} className="btn-primary" style={{ padding: '0.75rem' }}>
                     Sign Up
                   </button>
