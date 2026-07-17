@@ -18,8 +18,19 @@ export default function Navbar() {
   const [user,     setUser]     = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (!e.target.closest('.user-dropdown-container')) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUser(data?.user ?? null));
@@ -98,8 +109,7 @@ export default function Navbar() {
           </div>
 
           {/* ── Desktop Links (Center) ── */}
-          {!user && (
-            <div className="nb-desktop-links" style={{ display: 'none', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="nb-desktop-links" style={{ display: 'none', gap: '0.5rem', alignItems: 'center', justifyContent: 'center' }}>
               {NAV_LINKS.map(({ href, label }) => {
                 const isActive = pathname === href;
                 return (
@@ -118,7 +128,6 @@ export default function Navbar() {
                 );
               })}
             </div>
-          )}
 
           {/* ── Right side ── */}
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
@@ -126,21 +135,78 @@ export default function Navbar() {
             {/* DESKTOP ONLY — Login/Signup or user actions */}
             <div className="nb-desktop-auth" style={{ alignItems: 'center', gap: '0.75rem' }}>
               {user ? (
-                <>
-                  <Link href="/submit" className="btn-primary" style={{ fontSize: '0.85rem', padding: '0.5rem 1.1rem' }}>
-                    + Submit
-                  </Link>
-                  <Link href="/profile">
+                <div className="user-dropdown-container" style={{ position: 'relative' }}>
+                  <button 
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '0.6rem',
+                      padding: '2px 10px 2px 2px',
+                      background: '#FFFFFF', borderRadius: '50px',
+                      border: '1px solid #E5E7EB', cursor: 'pointer',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.borderColor = '#D1D5DB'}
+                    onMouseOut={(e) => e.currentTarget.style.borderColor = '#E5E7EB'}
+                  >
                     <img
                       src={user.user_metadata?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=6366f1&color=fff'}
                       alt="Profile"
-                      style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid #6366f1', cursor: 'pointer' }}
+                      style={{ width: 36, height: 36, borderRadius: '50%' }}
                     />
-                  </Link>
-                  <button onClick={handleLogout} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.45rem 0.9rem' }}>
-                    Logout
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
                   </button>
-                </>
+
+                  {dropdownOpen && (
+                    <div style={{
+                      position: 'absolute', top: 'calc(100% + 12px)', right: 0,
+                      width: '280px', background: '#FFFFFF',
+                      borderRadius: '12px', border: '1px solid #E5E7EB',
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+                      zIndex: 1000,
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{ padding: '1.5rem 1.25rem 1rem', borderBottom: '1px solid #F3F4F6' }}>
+                        <div style={{ fontWeight: 600, color: '#111827', fontSize: '1.05rem', marginBottom: '0.2rem', letterSpacing: '-0.01em' }}>
+                          {user.user_metadata?.full_name || 'Nagaraj K R'}
+                        </div>
+                        <div style={{ color: '#6B7280', fontSize: '0.9rem' }}>
+                          {user.user_metadata?.user_name ? `@${user.user_metadata.user_name}` : (user.email || '@nagaraj-kr')}
+                        </div>
+                      </div>
+                      
+                      <div style={{ padding: '0.5rem 0' }}>
+                        <Link href="/profile" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1.25rem', color: '#374151', textDecoration: 'none', fontSize: '0.95rem' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                          Your profile
+                        </Link>
+                        <Link href="/profile?tab=contributions" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1.25rem', color: '#374151', textDecoration: 'none', fontSize: '0.95rem' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><line x1="8" y1="9" x2="16" y2="9"></line><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="12" y2="17"></line></svg>
+                          My contributions
+                        </Link>
+                        <Link href="/profile?tab=bookings" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 1.25rem', color: '#374151', textDecoration: 'none', fontSize: '0.95rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                            My bookings
+                          </div>
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#EF4444' }}></span>
+                        </Link>
+                        <Link href="/submit" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1.25rem', color: '#374151', textDecoration: 'none', fontSize: '0.95rem' }}>
+                          <span style={{ fontSize: '1.4rem', lineHeight: 1, color: '#D97706', width: 18, textAlign: 'center', display: 'inline-block' }}>+</span>
+                          Submit a resource
+                        </Link>
+                      </div>
+
+                      <div style={{ padding: '0.5rem 0', borderTop: '1px solid #F3F4F6' }}>
+                        <button onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.75rem 1.25rem', color: '#4B5563', background: 'transparent', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer', fontSize: '0.95rem' }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                          Sign out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <>
                   <button onClick={() => setAuthModalOpen(true)} className="btn-primary" style={{ fontSize: '0.85rem', padding: '0.45rem 1rem' }}>
