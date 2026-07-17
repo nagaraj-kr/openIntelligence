@@ -2123,9 +2123,9 @@ function CountdownTimer({ targetDate, onExpire }) {
   const format = (num) => String(num).padStart(2, '0');
 
   const Box = ({ value, label }) => (
-    <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', padding: '0.6rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '60px' }}>
-      <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#6366f1', fontFamily: 'var(--font-display)', lineHeight: 1 }}>{format(value)}</span>
-      <span style={{ fontSize: '0.55rem', textTransform: 'uppercase', color: '#475569', letterSpacing: '1px', marginTop: '4px', fontWeight: 700 }}>{label}</span>
+    <div style={{ background: 'rgba(5, 8, 20, 0.5)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', padding: '0.6rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '60px' }}>
+      <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-display)', lineHeight: 1 }}>{format(value)}</span>
+      <span style={{ fontSize: '0.55rem', textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '1px', marginTop: '4px', fontWeight: 600 }}>{label}</span>
     </div>
   );
 

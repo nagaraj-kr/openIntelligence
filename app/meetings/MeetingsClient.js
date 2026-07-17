@@ -76,19 +76,19 @@ export default function MeetingsClient({ upcoming, past }) {
           }
         }
       `}</style>
-      <div style={{
+      <div style={{ 
         display: 'flex', gap: '2rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)',
         position: 'sticky', top: '68px', zIndex: 90, background: 'rgba(5,8,16,0.95)', backdropFilter: 'blur(12px)', padding: '0 10px'
       }}>
-        <button
+        <button 
           onClick={() => setActiveTab('upcoming')}
-          style={{
-            padding: '1rem 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'upcoming' ? '2px solid #818cf8' : '2px solid transparent',
-            color: activeTab === 'upcoming' ? '#818cf8' : 'var(--text-muted)',
-            fontWeight: 600,
+          style={{ 
+            padding: '1rem 0', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'upcoming' ? '2px solid #818cf8' : '2px solid transparent', 
+            color: activeTab === 'upcoming' ? '#818cf8' : 'var(--text-muted)', 
+            fontWeight: 600, 
             fontSize: '1rem',
             cursor: 'pointer',
             fontFamily: 'var(--font-display)',
@@ -96,15 +96,15 @@ export default function MeetingsClient({ upcoming, past }) {
           }}>
           Upcoming Sessions <span style={{ marginLeft: '4px', padding: '2px 8px', borderRadius: '12px', background: activeTab === 'upcoming' ? 'rgba(129,140,248,0.2)' : 'rgba(255,255,255,0.05)', fontSize: '0.75rem' }}>{upcoming.length}</span>
         </button>
-        <button
+        <button 
           onClick={() => setActiveTab('past')}
-          style={{
-            padding: '1rem 0',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'past' ? '2px solid #34d399' : '2px solid transparent',
-            color: activeTab === 'past' ? '#34d399' : 'var(--text-muted)',
-            fontWeight: 600,
+          style={{ 
+            padding: '1rem 0', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'past' ? '2px solid #34d399' : '2px solid transparent', 
+            color: activeTab === 'past' ? '#34d399' : 'var(--text-muted)', 
+            fontWeight: 600, 
             fontSize: '1rem',
             cursor: 'pointer',
             fontFamily: 'var(--font-display)',
