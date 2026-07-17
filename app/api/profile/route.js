@@ -24,8 +24,9 @@ export async function GET() {
     
     // Find linked GitHub account's user ID (if they logged in with Google and linked GitHub)
     let linkedUserId = null;
-    if (profile?.github_username) {
-      const { data: linkedUser } = await supabaseAdmin.from('users').select('id').eq('username', profile.github_username).single();
+    const githubUsername = profile?.github_username || user.user_metadata?.github_username;
+    if (githubUsername) {
+      const { data: linkedUser } = await supabaseAdmin.from('users').select('id').eq('username', githubUsername).single();
       if (linkedUser) {
         linkedUserId = linkedUser.id;
       }
@@ -35,8 +36,9 @@ export async function GET() {
 
     // Get emails to search for meetings
     const emailsToSearch = [user.email];
-    if (profile?.alternate_email) {
-      emailsToSearch.push(profile.alternate_email);
+    const altEmail = profile?.alternate_email || user.user_metadata?.alternate_email;
+    if (altEmail) {
+      emailsToSearch.push(altEmail);
     }
 
     const [resourcesRes, registrationsRes] = await Promise.all([

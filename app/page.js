@@ -23,7 +23,7 @@ async function getFeaturedResources() {
       .limit(6);
 
     if (error) throw error;
-    
+
     // Filter out banned users and map nested tags structure
     return (resources || [])
       .filter(r => !r.contributor || r.contributor.bio !== '__BANNED__')
@@ -58,15 +58,15 @@ async function getTopContributors() {
       .from('resources')
       .select('contributor:users(id, username, avatar_url, bio)')
       .in('status', ['APPROVED', 'FEATURED']);
-      
+
     if (resError) throw resError;
-    
+
     if (!resources || resources.length === 0) return { contributors: [] };
 
     // Group in JS
     const userMap = {};
     const counts = {};
-    
+
     for (const r of resources) {
       const u = r.contributor;
       if (u && u.bio !== '__BANNED__') {
@@ -74,7 +74,7 @@ async function getTopContributors() {
         if (!userMap[u.id]) userMap[u.id] = u;
       }
     }
-    
+
     const contributors = Object.entries(counts)
       .map(([id, count]) => {
         const u = userMap[id];
@@ -86,7 +86,7 @@ async function getTopContributors() {
         };
       })
       .sort((a, b) => b.resource_count - a.resource_count)
-      .slice(0, 8);
+      .slice(0, 5);
 
     return { contributors };
   } catch (err) {
@@ -282,10 +282,22 @@ export default async function HomePage() {
 
       {/* ── CONTRIBUTE CTA ─────────────────────────────────────── */}
       <section style={{ padding: '5rem 0' }}>
-        <div className="container" style={{ maxWidth: '700px', textAlign: 'center' }}>
-          <div className="glass-card animate-pulse-glow" style={{ padding: '3rem 2rem' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🤝</div>
-            <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', marginBottom: '0.75rem' }}>
+        <div className="container" style={{ maxWidth: '1000px', textAlign: 'center' }}>
+          <div className="glass-card animate-pulse-glow" style={{ padding: '4rem 2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15))', padding: '1rem', borderRadius: '50%', border: '1px solid rgba(99,102,241,0.2)' }}>
+                <svg width="44" height="44" viewBox="0 0 640 512" fill="url(#handshake-grad)">
+                  <defs>
+                    <linearGradient id="handshake-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#818cf8" />
+                      <stop offset="100%" stopColor="#c084fc" />
+                    </linearGradient>
+                  </defs>
+                  <path d="M323.4 85.2l-96.8 78.4c-16.1 13-19.2 36.4-7 53.1c12.9 17.8 38 21.3 55.3 7.8l99.3-77.2c7-5.4 17-4.2 22.5 2.8s4.2 17-2.8 22.5l-20.9 16.2L512 316.8V128h-.7l-3.9-2.5L434.8 79c-15.3-9.8-33.2-15-51.4-15c-21.8 0-43 7.5-60 21.2zm22.8 124.4l-51.7 40.2C263 274.4 217.3 268 193.7 235.6c-22.2-30.5-16.6-73.1 12.7-96.8l83.2-67.3c-11.6-4.9-24.1-7.4-36.8-7.4C234 64 215.7 69.6 200 80l-72 48V352h28.2l91.4 83.4c19.6 17.9 49.9 16.5 67.8-3.1c5.5-6.1 9.2-13.2 11.1-20.6l17 15.6c19.5 17.9 49.9 16.6 67.8-2.9c4.5-4.9 7.8-10.6 9.9-16.5c19.4 13 45.8 10.3 62.1-7.5c17.9-19.5 16.6-49.9-2.9-67.8l-134.2-123zM16 128c-8.8 0-16 7.2-16 16V352c0 8.8 7.2 16 16 16H64V128H16zM48 320a16 16 0 1 1 0 32 16 16 0 1 1 0-32zm0-240a16 16 0 1 1 0 32 16 16 0 1 1 0-32zM624 128H576V368h48c8.8 0 16-7.2 16-16V144c0-8.8-7.2-16-16-16z" />
+                </svg>
+              </div>
+            </div>
+            <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 2.2rem)', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
               Why Open Contributions Matter
             </h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.7, marginBottom: '2rem' }}>

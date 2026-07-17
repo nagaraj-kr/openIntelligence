@@ -91,10 +91,53 @@ export default function ResourcesPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingTop: '3rem', paddingBottom: '5rem', background: '#FCFBF9' }}>
+      <style>{`
+        .resources-layout {
+          display: grid;
+          grid-template-columns: 220px 1fr;
+          gap: 2.5rem;
+        }
+        .header-layout {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 3rem;
+          gap: 1.5rem;
+        }
+        .search-bar {
+          display: flex;
+          align-items: center;
+          background: #FFFFFF;
+          border: 1px solid #E7E5E4;
+          border-radius: 8px;
+          padding: 0.6rem 1rem;
+          margin-bottom: 1rem;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+          gap: 0.5rem;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 1024px) {
+          .resources-layout {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
+        }
+        @media (max-width: 768px) {
+          .header-layout {
+            flex-direction: column;
+            margin-bottom: 1.5rem;
+          }
+        }
+        @media (max-width: 480px) {
+          .container {
+            padding: 0 1rem !important;
+          }
+        }
+      `}</style>
       <div className="container" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2rem' }}>
 
         {/* Top Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '3rem' }}>
+        <div className="header-layout">
           <div>
             <h1 style={{
               fontSize: '1.75rem',
@@ -129,7 +172,7 @@ export default function ResourcesPage() {
         </div>
 
         {/* 2-Column Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '2.5rem' }}>
+        <div className="resources-layout">
           
           {/* Sidebar */}
           <aside>
@@ -234,16 +277,7 @@ export default function ResourcesPage() {
           {/* Main Content Area */}
           <main>
             {/* Search Bar Container */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              background: '#FFFFFF',
-              border: '1px solid #E7E5E4',
-              borderRadius: '8px',
-              padding: '0.6rem 1rem',
-              marginBottom: '1rem',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-            }}>
+            <div className="search-bar">
               <svg width="15" height="15" fill="none" stroke="#A8A29E" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -256,13 +290,14 @@ export default function ResourcesPage() {
                   border: 'none',
                   outline: 'none',
                   background: 'transparent',
-                  flex: 1,
-                  padding: '0 0.75rem',
+                  flex: '1 1 150px',
+                  minWidth: '150px',
+                  padding: '0 0.5rem',
                   fontSize: '0.85rem',
                   color: '#1C1917',
                 }}
               />
-              <span style={{ fontSize: '0.75rem', color: '#A8A29E', fontWeight: 500 }}>
+              <span style={{ fontSize: '0.75rem', color: '#A8A29E', fontWeight: 500, whiteSpace: 'nowrap' }}>
                 {total} of {globalTotal}
               </span>
             </div>

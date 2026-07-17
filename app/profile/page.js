@@ -57,8 +57,8 @@ export default function ProfilePage() {
         setLinkSuccess(type === 'email' ? 'Event Email linked successfully!' : 'GitHub linked successfully!');
         if (type === 'email') setProfile(prev => ({ ...prev, alternate_email: alternateEmail }));
         if (type === 'github') setProfile(prev => ({ ...prev, github_username: githubUsername }));
-        // Refresh page to show new meetings
-        if (type === 'email') window.location.reload();
+        // Refresh page to show new meetings and updated profile info
+        window.location.reload();
       }
     } catch (err) {
       console.error(err);
@@ -103,7 +103,7 @@ export default function ProfilePage() {
                 {profile?.full_name || user.user_metadata?.full_name || user.user_metadata?.user_name || 'User'}
               </h1>
               <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                @{profile?.github_username || user.user_metadata?.user_name || user.email?.split('@')[0]}
+                @{profile?.github_username || user.user_metadata?.github_username || user.user_metadata?.user_name || user.email?.split('@')[0]}
               </div>
               {profile?.bio && <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.35rem' }}>{profile.bio}</div>}
             </div>
@@ -160,11 +160,11 @@ export default function ProfilePage() {
 
                 return (
                   <div key={reg.id} style={{ borderBottom: index < attendedMeetings.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                    <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start', flexWrap: 'nowrap' }}>
+                    <div style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                       {/* Date Block */}
                       <div style={{ 
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                        background: '#f8f7f4', borderRadius: '8px', padding: '0.5rem 0.7rem', minWidth: '55px'
+                        background: '#f8f7f4', borderRadius: '8px', padding: '0.5rem 0.7rem', minWidth: '55px', flexShrink: 0
                       }}>
                         <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#9c814b', textTransform: 'uppercase', marginBottom: '0.1rem' }}>{monthShort}</span>
                         <span style={{ fontSize: '1.4rem', fontWeight: 700, color: '#18181b', lineHeight: 1.1 }}>{dayNum}</span>
@@ -184,10 +184,10 @@ export default function ProfilePage() {
                           </span>
                         </div>
                         
-                        <p style={{ color: '#52525b', fontSize: '0.85rem', margin: 0 }}>
+                        <p style={{ color: '#52525b', fontSize: '0.85rem', margin: 0, wordBreak: 'break-word' }}>
                           {dayOfWeek} {dayNum} {monthNorm}, {timeStr} &middot; {reg.meeting.venue}
                         </p>
-                        <p style={{ color: '#a1a1aa', fontSize: '0.8rem', margin: 0 }}>
+                        <p style={{ color: '#a1a1aa', fontSize: '0.8rem', margin: 0, wordBreak: 'break-word' }}>
                           Booked {bookedDay} {bookedMonth} {bookedYear} &middot; Host {reg.meeting.host || 'Nagaraj K R'}
                         </p>
                       </div>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                       <Link 
                         href={`/meetings/${reg.meeting.id}`}
                         className="btn-outline" 
-                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', alignSelf: 'center', whiteSpace: 'nowrap', textDecoration: 'none' }}
+                        style={{ fontSize: '0.75rem', padding: '0.4rem 0.8rem', whiteSpace: 'nowrap', textDecoration: 'none', marginTop: '0.2rem' }}
                       >
                         View Details &rarr;
                       </Link>
@@ -217,7 +217,7 @@ export default function ProfilePage() {
         <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           
           {/* Missing GitHub Link (for Google Users) */}
-          {(!profile?.github_username && !user?.user_metadata?.user_name) && (
+          {(!profile?.github_username && !user?.user_metadata?.user_name && !user?.user_metadata?.github_username) && (
             <div className="glass-card" style={{ padding: '1.25rem', borderLeft: '4px solid #6366f1' }}>
               <h3 style={{ fontSize: '0.95rem', margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>Do you have a GitHub profile?</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
@@ -253,7 +253,7 @@ export default function ProfilePage() {
             </p>
             {!showEmailLink ? (
               <button onClick={() => setShowEmailLink(true)} className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 1rem' }}>
-                {profile?.alternate_email ? `Linked: ${profile.alternate_email} (Change)` : 'Link Alternate Email'}
+                {(profile?.alternate_email || user?.user_metadata?.alternate_email) ? `Linked: ${profile?.alternate_email || user?.user_metadata?.alternate_email} (Change)` : 'Link Alternate Email'}
               </button>
             ) : (
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>

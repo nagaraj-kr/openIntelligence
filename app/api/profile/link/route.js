@@ -34,8 +34,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.from('users').update(updateData).eq('id', user.id);
-    if (error) throw error;
+    const { error: dbError } = await supabaseAdmin.from('users').update(updateData).eq('id', user.id);
+    if (dbError) throw dbError;
+
+    // Also save to auth.users user_metadata to prevent db triggers from wiping it on login
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      user_metadata: updateData
+    });
+    if (authError) console.error("Error updating user_metadata:", authError);
 
     return NextResponse.json({ success: true });
   } catch (error) {

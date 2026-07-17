@@ -60,6 +60,7 @@ export default function ResourceListItem({ resource }) {
         style={{
           padding: '1.2rem 1rem',
           display: 'flex',
+          flexWrap: 'wrap',
           gap: '1rem',
           background: '#FFFFFF',
           borderBottom: '1px solid #F5F5F4',
@@ -109,9 +110,10 @@ export default function ResourceListItem({ resource }) {
             fontWeight: 400,
             margin: 0,
             lineHeight: 1.4,
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
           }}>
             {description || use_case}
           </p>

@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase admin client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request) {
   try {
@@ -15,21 +10,26 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-
     // Create unique filename
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const filename = uniqueSuffix + '-' + file.name.replace(/[^a-zA-Z0-9.]/g, '');
     
     // Upload to Supabase Storage
-    const { data: uploadData, error } = await supabase
+    let { data: uploadData, error } = await supabaseAdmin
       .storage
       .from('events') // We use an 'events' bucket
-      .upload(filename, buffer, {
+      .upload(filename, file, {
         contentType: file.type,
         upsert: false
       });
+
+    // Fallback: If bucket doesn't exist, try creating it
+    if (error && error.message.includes('bucket') && error.message.includes('not found')) {
+      await supabaseAdmin.storage.createBucket('events', { public: true });
+      const retry = await supabaseAdmin.storage.from('events').upload(filename, file, { contentType: file.type, upsert: false });
+      error = retry.error;
+      uploadData = retry.data;
+    }
 
     if (error) {
       console.error('Supabase upload error:', error);
@@ -37,7 +37,7 @@ export async function POST(request) {
     }
 
     // Get public URL
-    const { data: publicUrlData } = supabase
+    const { data: publicUrlData } = supabaseAdmin
       .storage
       .from('events')
       .getPublicUrl(filename);
