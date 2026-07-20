@@ -67,13 +67,15 @@ export default function HeroEventCard({ meeting, isPast = false }) {
   );
 
   if (isPast) {
+    const descText = outcome_summary || finalDescription || '';
+
     return (
       <>
         {/* Past Session Card UI */}
         <div className="past-event-card">
           {/* Image Side */}
           <div className="past-event-img-container">
-            <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
               {coverPhoto ? (
                    <img src={coverPhoto} alt={title} className="past-event-img" style={{ borderRadius: '16px 0 0 16px' }} />
               ) : (
@@ -99,7 +101,7 @@ export default function HeroEventCard({ meeting, isPast = false }) {
           </div>
 
           {/* Content Side */}
-          <div style={{ padding: '1.5rem', flex: '999 1 320px', display: 'flex', flexDirection: 'column' }}>
+          <div className="past-event-content" style={{ padding: '1.5rem', flex: '999 1 320px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
               <span style={{ padding: '4px 12px', background: 'rgba(148,163,184,0.1)', color: '#94a3b8', borderRadius: '16px', fontSize: '0.75rem', fontWeight: 600 }}>Completed</span>
               {(outcome_title || outcome_summary) && (
@@ -109,9 +111,22 @@ export default function HeroEventCard({ meeting, isPast = false }) {
 
             <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc', marginBottom: '12px', fontFamily: 'var(--font-display)', lineHeight: 1.3 }}>{title}</h3>
             
-            <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '16px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-              {outcome_summary || finalDescription}
+            <p
+              style={{
+                color: '#94a3b8',
+                fontSize: '0.95rem',
+                lineHeight: 1.6,
+                marginBottom: '16px',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {descText}
             </p>
+
 
             {tags.length > 0 && (
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>

@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'var(--font-sans)', backgroundColor: '#ffffff', flexWrap: 'wrap' }}>
       
       {/* ── LEFT SIDE (Graphic & Text) ── */}
-      <div style={{
+      <div className="hex-left-side" style={{
         flex: '1 1 500px', 
         display: 'flex', 
         flexDirection: 'column', 
@@ -73,7 +73,6 @@ export default function AdminLoginPage() {
         borderRight: '1px solid #f1f5f9',
         backgroundColor: '#ffffff'
       }}>
-        {/* SVG Network Hexagon Logo with Animations */}
         {/* SVG Network Hexagon Logo with Animations */}
         <style>{`
           @keyframes slowSpin {
@@ -106,6 +105,13 @@ export default function AdminLoginPage() {
             stroke-dasharray: 1;
             stroke-dashoffset: 1;
             animation: dashDraw 5s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+          }
+
+          /* Mobile la hex logo + text hide pannurathukku */
+          @media (max-width: 768px) {
+            .hex-left-side {
+              display: none !important;
+            }
           }
         `}</style>
         <svg className="hex-svg" width="280" height="280" viewBox="0 0 200 200" fill="none" stroke="#0f172a" strokeWidth="2.5">
@@ -279,8 +285,8 @@ export default function AdminLoginPage() {
             </div>
 
             {/* Back to site */}
-            <a
-              href="/"
+            
+             <a href="/"
               style={{
                 display: 'block', textAlign: 'center',
                 color: '#64748b', fontSize: '0.85rem', textDecoration: 'none'
