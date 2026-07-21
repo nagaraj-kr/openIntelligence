@@ -198,7 +198,7 @@ export default function ResourcesPage() {
               <h4 className="mobile-hide" style={{ fontSize: '0.65rem', fontWeight: 600, color: '#A8A29E', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
                 CATEGORIES
               </h4>
-              
+
               {/* Mobile Custom Dropdown */}
               <div className="mobile-category-dropdown" style={{ position: 'relative', zIndex: 40 }}>
                 <button
@@ -230,7 +230,7 @@ export default function ResourcesPage() {
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </button>
-                
+
                 {isMobileDropdownOpen && (
                   <div style={{
                     position: 'absolute',
@@ -250,7 +250,7 @@ export default function ResourcesPage() {
                       const isActive = category === slug;
                       const count = slug === 'all' ? globalTotal : (categoryCounts[slug] || 0);
                       const icon = ICONS[slug] || ICONS['documentation'];
-                      
+
                       return (
                         <button
                           key={slug}
@@ -276,7 +276,7 @@ export default function ResourcesPage() {
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <span style={{ 
+                            <span style={{
                               color: isActive ? (slug === 'all' ? '#D97706' : '#1C1917') : '#A8A29E',
                               display: 'flex',
                               alignItems: 'center'
@@ -310,6 +310,7 @@ export default function ResourcesPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
+                        width: '100%',
                         padding: '0.45rem 0.6rem',
                         borderRadius: '6px',
                         border: 'none',

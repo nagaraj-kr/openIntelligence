@@ -64,18 +64,21 @@ export default function Navbar() {
   return (
     <>
       <style>{`
-        /* ── Desktop (≥ 769px): show Login/Signup, hide hamburger ── */
+        /* ── Navbar Items ── */
         .nb-desktop-auth    { display: flex; }
         .nb-hamburger       { display: none; }
+        .nb-mobile-profile  { display: none; }
 
         @media (min-width: 769px) {
           .nb-desktop-links { display: flex !important; }
         }
 
-        /* ── Mobile / Tablet (≤ 768px): hide desktop auth, show hamburger ── */
+        /* ── Mobile / Tablet (≤ 768px) ── */
         @media (max-width: 768px) {
+          .nb-desktop-only  { display: none !important; }
           .nb-desktop-auth  { display: none !important; }
           .nb-hamburger     { display: flex !important; }
+          .nb-mobile-profile { display: block !important; }
         }
       `}</style>
 
@@ -133,7 +136,7 @@ export default function Navbar() {
           {/* ── Right side ── */}
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem' }}>
 
-            {/* DESKTOP ONLY — Login/Signup or user actions */}
+            {/* Login/Signup or user actions */}
             <div className="nb-desktop-auth" style={{ alignItems: 'center', gap: '0.75rem' }}>
               {user ? (
                 <div className="user-dropdown-container" style={{ position: 'relative' }}>
@@ -217,6 +220,17 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* MOBILE ONLY - Simple Profile Avatar */}
+            {user && (
+              <Link href="/profile" className="nb-mobile-profile" aria-label="My Profile">
+                <img 
+                  src={user.user_metadata?.avatar_url || 'https://ui-avatars.com/api/?name=User&background=6366f1&color=fff'} 
+                  alt="Profile" 
+                  style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid rgba(99,102,241,0.2)' }} 
+                />
+              </Link>
+            )}
+
             {/* MOBILE / TABLET ONLY — Hamburger button */}
             <button
               className="nb-hamburger"
@@ -252,11 +266,11 @@ export default function Navbar() {
                 return (
                   <div key={href} style={{ borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <button 
+                      <button
                         onClick={() => setMobileMeetingsOpen(!mobileMeetingsOpen)}
-                        style={{ 
-                          padding: '0.8rem 0', 
-                          color: pathname === href ? '#6366f1' : 'var(--text-secondary)', 
+                        style={{
+                          padding: '0.8rem 0',
+                          color: pathname === href ? '#6366f1' : 'var(--text-secondary)',
                           fontWeight: 500,
                           background: 'none',
                           border: 'none',
@@ -275,7 +289,7 @@ export default function Navbar() {
                           <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                       </button>
-                      
+
                       {mobileMeetingsOpen && (
                         <div style={{ paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '0.8rem' }}>
                           <Link href="/meetings?tab=upcoming" onClick={() => setMenuOpen(false)} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem' }}>
