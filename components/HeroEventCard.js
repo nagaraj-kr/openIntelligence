@@ -77,10 +77,16 @@ export default function HeroEventCard({ meeting, isPast = false }) {
           <div className="past-event-img-container">
             <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
               {coverPhoto ? (
-                   <img src={coverPhoto} alt={title} className="past-event-img" style={{ borderRadius: '16px 0 0 16px' }} />
+                <img src={coverPhoto} alt={title} className="past-event-img" />
               ) : (
-                 <div style={{ width: '100%', minHeight: '160px', background: '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px 0 0 16px' }}>
-                   <span style={{ color: '#94a3b8' }}>No image</span>
+                 <div style={{ width: '100%', height: '100%', minHeight: '220px', aspectRatio: '4/3', background: '#1e293b', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center', justifyContent: 'center' }}>
+                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                     <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                     <polyline points="21 15 16 10 5 21"></polyline>
+                     <line x1="3" y1="3" x2="21" y2="21" stroke="#64748b" opacity="0.5"></line>
+                   </svg>
+                   <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500 }}>No poster available</span>
                  </div>
               )}
               

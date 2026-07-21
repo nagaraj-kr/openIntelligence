@@ -78,11 +78,79 @@ export default function ExploreSection() {
           </p>
         </div>
 
-        <div style={{ position: 'relative', height: '350px', width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+        <style>{`
+          .explore-cards-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 480px;
+          }
+          .explore-card {
+            padding: 1.5rem;
+          }
+          .explore-card-link {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+          }
+          .explore-card-icon {
+            flex-shrink: 0;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            font-size: 2rem;
+          }
+          .explore-card-title {
+            font-size: 1.25rem;
+          }
+          .explore-card-desc {
+            font-size: 0.875rem;
+          }
+          .explore-card-tag {
+            font-size: 0.75rem;
+          }
+          
+          @media (min-width: 640px) {
+            .explore-cards-container {
+              height: 350px;
+            }
+            .explore-card {
+              padding: 2.5rem;
+            }
+            .explore-card-link {
+              flex-direction: row;
+              gap: 1.5rem;
+              align-items: center;
+            }
+            .explore-card-icon {
+              width: 80px;
+              height: 80px;
+              font-size: 2.5rem;
+            }
+            .explore-card-title {
+              font-size: 1.5rem;
+            }
+            .explore-card-desc {
+              font-size: 1rem;
+            }
+            .explore-card-tag {
+              font-size: 0.875rem;
+            }
+          }
+        `}</style>
+        
+        <div className="explore-cards-container">
           {CATEGORIES.map((cat, idx) => (
             <div
               key={cat.slug}
               ref={(el) => (cardsRef.current[idx] = el)}
+              className="explore-card"
               style={{
                 position: 'absolute',
                 top: 0,
@@ -91,35 +159,33 @@ export default function ExploreSection() {
                 background: 'var(--bg-card, #ffffff)',
                 border: '1px solid var(--border)',
                 borderRadius: '24px',
-                padding: '2.5rem',
                 boxShadow: '0 20px 40px -10px rgba(0,0,0,0.1)',
                 zIndex: idx + 1,
                 transformOrigin: 'top center',
                 willChange: 'transform, opacity',
               }}
             >
-              <Link href={`/resources?category=${cat.slug}`} style={{ textDecoration: 'none', display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                <div style={{
-                  width: 80, height: 80, flexShrink: 0,
-                  background: cat.bg || 'rgba(99,102,241,0.12)',
-                  border: `1px solid ${cat.color || 'rgba(99,102,241,0.2)'}`,
-                  color: cat.color,
-                  borderRadius: '20px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '2.5rem',
-                }}>
+              <Link href={`/resources?category=${cat.slug}`} className="explore-card-link">
+                <div 
+                  className="explore-card-icon"
+                  style={{
+                    background: cat.bg || 'rgba(99,102,241,0.12)',
+                    border: `1px solid ${cat.color || 'rgba(99,102,241,0.2)'}`,
+                    color: cat.color,
+                  }}
+                >
                   {cat.icon}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.5rem', margin: '0 0 0.5rem', lineHeight: 1.2 }}>
+                <div style={{ flex: 1, width: '100%' }}>
+                  <h3 className="explore-card-title" style={{ color: 'var(--text-primary)', fontWeight: 800, margin: '0 0 0.5rem', lineHeight: 1.2 }}>
                     {cat.name}
                   </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1rem', margin: '0 0 1rem', lineHeight: 1.5 }}>
+                  <p className="explore-card-desc" style={{ color: 'var(--text-muted)', margin: '0 0 1rem', lineHeight: 1.5 }}>
                     {cat.desc}
                   </p>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                     {cat.examples.map(ex => (
-                      <span key={ex} style={{ background: 'var(--bg-default, #f8fafc)', border: '1px solid var(--border)', padding: '0.35rem 0.85rem', borderRadius: '16px', fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                      <span key={ex} className="explore-card-tag" style={{ background: 'var(--bg-default, #f8fafc)', border: '1px solid var(--border)', padding: '0.35rem 0.85rem', borderRadius: '16px', fontWeight: 500, color: 'var(--text-secondary)' }}>
                         {ex}
                       </span>
                     ))}

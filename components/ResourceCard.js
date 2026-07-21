@@ -59,7 +59,7 @@ export default function ResourceCard({ resource, variant = 'light' }) {
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; }}
         >
           {/* Title */}
-          <h3 style={{ margin: 0, fontSize: '1rem', fontFamily: 'monospace' }}>
+          <h3 style={{ margin: 0, fontSize: '1rem', fontFamily: 'monospace', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
             <span style={{ color: '#6b7280', fontWeight: 500 }}>
               {contributor?.username || 'anonymous'}/
             </span>

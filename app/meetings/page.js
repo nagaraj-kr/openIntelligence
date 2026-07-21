@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import Link from 'next/link';
 import MeetingCard from '@/components/MeetingCard';
@@ -76,7 +77,9 @@ export default async function MeetingsPage() {
         </div>
 
         {/* ── Sessions Tabs ── */}
-        <MeetingsClient upcoming={upcoming} past={past} />
+        <Suspense fallback={<div>Loading sessions...</div>}>
+          <MeetingsClient upcoming={upcoming} past={past} />
+        </Suspense>
       </div>
     </div>
   );

@@ -176,7 +176,7 @@ export default async function HomePage() {
           {featuredResources.length > 0 ? (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
               gap: '1rem',
             }}>
               {featuredResources.map((resource) => (
@@ -258,18 +258,16 @@ export default async function HomePage() {
                       style={{ borderRadius: '50%', border: '2px solid rgba(255,255,255,0.08)', objectFit: 'cover', flexShrink: 0 }}
                     />
 
-                    {/* Name */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {/* Name and Badge */}
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.15rem' }}>
+                      <div style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>
                         {c.login}
                       </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem' }}>@{c.login}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.72rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', marginBottom: '0.25rem' }}>@{c.login}</div>
+                      <span style={{ padding: '0.2rem 0.6rem', background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        📦 {c.resource_count} resource{c.resource_count !== 1 ? 's' : ''}
+                      </span>
                     </div>
-
-                    {/* Resource count badge */}
-                    <span style={{ padding: '0.2rem 0.6rem', background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
-                      📦 {c.resource_count} resource{c.resource_count !== 1 ? 's' : ''}
-                    </span>
                   </div>
                 </a>
               ))}

@@ -1,11 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import HeroEventCard from '@/components/HeroEventCard';
 import Link from 'next/link';
 
 export default function MeetingsClient({ upcoming, past }) {
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const searchParams = useSearchParams();
+  const tabQuery = searchParams.get('tab');
+  
+  const [activeTab, setActiveTab] = useState(tabQuery === 'past' ? 'past' : 'upcoming');
+
+  useEffect(() => {
+    if (tabQuery === 'past' || tabQuery === 'upcoming') {
+      setActiveTab(tabQuery);
+    }
+  }, [tabQuery]);
 
   return (
     <>
@@ -26,7 +36,7 @@ export default function MeetingsClient({ upcoming, past }) {
         }
         .past-event-img {
           width: 100%;
-          height: 100%;
+          height: auto;
           object-fit: cover;
           display: block;
         }
@@ -63,7 +73,7 @@ export default function MeetingsClient({ upcoming, past }) {
           }
           .past-event-img-container {
             width: 100%;
-            height: 220px;
+            height: auto;
           }
           .upcoming-card {
             flex-direction: column-reverse;
@@ -74,10 +84,18 @@ export default function MeetingsClient({ upcoming, past }) {
             min-height: 200px;
             width: 100%;
           }
+          .desktop-tabs {
+            display: none !important;
+          }
+        }
+        .desktop-tabs {
+          display: flex;
         }
       `}</style>
-      <div style={{ 
-        display: 'flex', gap: '2rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)',
+      
+      {/* ── Desktop Tabs ── */}
+      <div className="desktop-tabs" style={{ 
+        gap: '2rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)',
         position: 'sticky', top: '68px', zIndex: 90, background: 'rgba(5,8,16,0.95)', backdropFilter: 'blur(12px)', padding: '0 10px'
       }}>
         <button 

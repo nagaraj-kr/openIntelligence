@@ -5,14 +5,14 @@ import Link from 'next/link';
 import ResourceListItem from '@/components/ResourceListItem';
 
 const ICONS = {
-  all: <svg width="14" height="14" viewBox="0 0 24 24" fill="#D97706" stroke="none"><path d="M12 2l2.4 7.6 7.6 2.4-7.6 2.4-2.4 7.6-2.4-7.6-7.6-2.4 7.6-2.4z"/></svg>,
-  dataset: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
-  'open-repository': <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>,
-  'prompt-library': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>,
-  'mcp-server': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>,
-  'rag-template': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"/><path d="M4.93 4.93l14.14 14.14"/><path d="M2 12h20"/><path d="M4.93 19.07L19.07 4.93"/></svg>,
-  'ai-workflow': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
-  documentation: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+  all: <svg width="14" height="14" viewBox="0 0 24 24" fill="#D97706" stroke="none"><path d="M12 2l2.4 7.6 7.6 2.4-7.6 2.4-2.4 7.6-2.4-7.6-7.6-2.4 7.6-2.4z" /></svg>,
+  dataset: <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg>,
+  'open-repository': <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z" /></svg>,
+  'prompt-library': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" /></svg>,
+  'mcp-server': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16v16H4z" /><path d="M12 8v8" /><path d="M8 12h8" /></svg>,
+  'rag-template': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20" /><path d="M4.93 4.93l14.14 14.14" /><path d="M2 12h20" /><path d="M4.93 19.07L19.07 4.93" /></svg>,
+  'ai-workflow': <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>,
+  documentation: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>
 };
 
 const CATEGORIES = [
@@ -29,11 +29,12 @@ const CATEGORIES = [
 export default function ResourcesPage() {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('all');
   const [selectedTag, setSelectedTag] = useState(null);
-  
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
+
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const PER_PAGE = 12;
@@ -46,8 +47,8 @@ export default function ResourcesPage() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        search, 
-        category, 
+        search,
+        category,
         sort: 'newest',
         page: String(page),
         limit: String(PER_PAGE),
@@ -81,7 +82,7 @@ export default function ResourcesPage() {
 
   useEffect(() => { fetchResources(); }, [fetchResources]);
   useEffect(() => { fetchAggregations(); }, [fetchAggregations]);
-  
+
   useEffect(() => { setPage(1); }, [search, category, selectedTag]);
 
   const totalPages = Math.ceil(total / PER_PAGE);
@@ -118,8 +119,24 @@ export default function ResourcesPage() {
         }
         @media (max-width: 1024px) {
           .resources-layout {
-            grid-template-columns: 1fr;
-            gap: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+          }
+          .sidebar-categories {
+            display: none;
+          }
+          .mobile-category-dropdown {
+            display: block;
+            width: 100%;
+          }
+          .mobile-hide {
+            display: none;
+          }
+        }
+        @media (min-width: 1025px) {
+          .mobile-category-dropdown {
+            display: none;
           }
         }
         @media (max-width: 768px) {
@@ -173,20 +190,118 @@ export default function ResourcesPage() {
 
         {/* 2-Column Layout */}
         <div className="resources-layout">
-          
+
           {/* Sidebar */}
           <aside>
             {/* Categories */}
             <div style={{ marginBottom: '2.5rem' }}>
-              <h4 style={{ fontSize: '0.65rem', fontWeight: 600, color: '#A8A29E', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+              <h4 className="mobile-hide" style={{ fontSize: '0.65rem', fontWeight: 600, color: '#A8A29E', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '0.75rem' }}>
                 CATEGORIES
               </h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+              
+              {/* Mobile Custom Dropdown */}
+              <div className="mobile-category-dropdown" style={{ position: 'relative', zIndex: 40 }}>
+                <button
+                  onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem',
+                    borderRadius: '8px',
+                    border: '1px solid #E7E5E4',
+                    backgroundColor: '#FFFFFF',
+                    fontSize: '0.9rem',
+                    color: '#1C1917',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', color: category === 'all' ? '#D97706' : '#57534E' }}>
+                      {ICONS[category] || ICONS['documentation']}
+                    </span>
+                    <span style={{ fontWeight: 500 }}>
+                      {CATEGORIES.find(c => c.slug === category)?.name || 'Select Category'}
+                    </span>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#57534E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMobileDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                
+                {isMobileDropdownOpen && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '0.5rem',
+                    background: '#FFFFFF',
+                    border: '1px solid #E7E5E4',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                    {CATEGORIES.map(({ slug, name }) => {
+                      const isActive = category === slug;
+                      const count = slug === 'all' ? globalTotal : (categoryCounts[slug] || 0);
+                      const icon = ICONS[slug] || ICONS['documentation'];
+                      
+                      return (
+                        <button
+                          key={slug}
+                          onClick={() => {
+                            setCategory(slug);
+                            setSelectedTag(null);
+                            setIsMobileDropdownOpen(false);
+                          }}
+                          style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.75rem 1rem',
+                            border: 'none',
+                            background: isActive ? '#F5F5F4' : '#FFFFFF',
+                            color: isActive ? '#1C1917' : '#57534E',
+                            fontWeight: isActive ? 600 : 400,
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            borderBottom: '1px solid #F5F5F4'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ 
+                              color: isActive ? (slug === 'all' ? '#D97706' : '#1C1917') : '#A8A29E',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>
+                              {icon}
+                            </span>
+                            {name}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: isActive ? '#A8A29E' : '#D6D3D1', fontWeight: 500 }}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Desktop Sidebar */}
+              <div className="sidebar-categories">
                 {CATEGORIES.map(({ slug, name }) => {
                   const isActive = category === slug;
                   const count = slug === 'all' ? globalTotal : (categoryCounts[slug] || 0);
                   const icon = ICONS[slug] || ICONS['documentation'];
-                  
+
                   return (
                     <button
                       key={slug}
@@ -210,7 +325,7 @@ export default function ResourcesPage() {
                       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'transparent'; }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <span style={{ 
+                        <span style={{
                           color: isActive ? (slug === 'all' ? '#D97706' : '#FFFFFF') : '#A8A29E',
                           display: 'flex',
                           alignItems: 'center',
@@ -220,8 +335,8 @@ export default function ResourcesPage() {
                         </span>
                         {name}
                       </div>
-                      <span style={{ 
-                        fontSize: '0.75rem', 
+                      <span style={{
+                        fontSize: '0.75rem',
                         color: isActive ? '#A8A29E' : '#D6D3D1',
                         fontWeight: isActive ? 500 : 400
                       }}>
@@ -235,7 +350,7 @@ export default function ResourcesPage() {
 
             {/* Popular Tags */}
             {popularTags.length > 0 && (
-              <div>
+              <div className="mobile-hide">
                 <h4 style={{ fontSize: '0.65rem', fontWeight: 600, color: '#A8A29E', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '1rem' }}>
                   POPULAR TAGS
                 </h4>
@@ -303,9 +418,9 @@ export default function ResourcesPage() {
             </div>
 
             {/* List */}
-            <div style={{ 
-              background: '#FFFFFF', 
-              borderRadius: '8px', 
+            <div style={{
+              background: '#FFFFFF',
+              borderRadius: '8px',
               border: '1px solid #E7E5E4',
               overflow: 'hidden'
             }}>
